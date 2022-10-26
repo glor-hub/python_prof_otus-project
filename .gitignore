@@ -113,7 +113,9 @@ celerybeat.pid
 *.sage.py
 
 # Environments
-.env
+#for project development commented out .env
+#.env
+
 .venv
 env/
 venv/
