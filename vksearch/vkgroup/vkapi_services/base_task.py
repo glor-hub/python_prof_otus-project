@@ -17,7 +17,7 @@ class BaseTask:
                         tries += 1
                         # return None
                     else:
-                        return await resp.read()
+                        return await resp.json()
             except Exception:
                 await asyncio.sleep(self.INTERVAL_RETRIES * 2 ** tries)
                 tries += 1

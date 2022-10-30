@@ -1,9 +1,5 @@
-import  logging
-
-import asyncio
-
-import vkapiclient
-from base_task import BaseTask
+from . import vkapiclient
+from .base_task import BaseTask
 
 class CommunityTask(BaseTask):
     IDS_PER_TASK = 5

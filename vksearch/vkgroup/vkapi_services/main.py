@@ -3,7 +3,7 @@ import logging
 
 import aiohttp
 
-from vkapiclient import VKApiClient
+from .vkapiclient import VKApiClient
 
 
 def logging_init(logging_file):
@@ -22,7 +22,12 @@ async def main():
         await vkclient.run()
 
 
-if __name__ == '__main__':
+# if __name__ == '__main__':
+#     logging_init(None)
+#
+#     asyncio.run(main())
+
+def main_run():
     logging_init(None)
 
     asyncio.run(main())
