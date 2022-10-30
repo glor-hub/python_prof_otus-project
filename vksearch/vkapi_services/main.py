@@ -1,5 +1,10 @@
-import argparse
+import asyncio
 import logging
+
+import aiohttp
+
+from vkapiclient import VKApiClient
+
 
 def logging_init(logging_file):
     # initialize script logging
@@ -9,11 +14,15 @@ def logging_init(logging_file):
                         level=logging.INFO)
 
 
-if __name__ == '__main__':
+async def main():
+    async with aiohttp.ClientSession(
+            timeout=aiohttp.ClientTimeout(total=10)
+    ) as session:
+        vkclient = VKApiClient(2, session)
+        await vkclient.run()
 
-    arg_parser = argparse.ArgumentParser()
-    arg_parser.add_argument('-p', '--period', help='Poll period', default=CRAWLING_PERIOD, type=int)
-    arg_parser.add_argument('-p', '--log', help='Log file', default=None, type=str)
-    args = arg_parser.parse_args()
+
+if __name__ == '__main__':
     logging_init(None)
+
     asyncio.run(main())
