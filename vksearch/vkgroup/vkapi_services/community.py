@@ -2,6 +2,7 @@ from . import vkapiclient
 from .base_task import BaseTask
 
 import logging
+logger = logging.getLogger(__name__)
 
 class CommunityTask(BaseTask):
     IDS_PER_TASK = 5
