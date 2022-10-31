@@ -1,23 +1,40 @@
 from django.db import models
 
-# from vk_services import get_data_from_vk
+
+
+
+# age_limit = models.SmallIntegerField(blank=True, null=True)
+# updated = models.DateTimeField()
+# audience_updated = models.DateTimeField()
+# IKE = 'L'
+# DISLIKE = 'D'
+# NONE = 'N'
+# STATUS = [
+#     (LIKE, 'Like'),
+#     (DISLIKE, 'Dislike'),
+#     (NONE, 'None')
+# ]
+class CommunityType(models.Model):
+    name = models.TextField(unique=True)
 
 
 # Create your models here.
 class Community(models.Model):
     vk_id = models.PositiveIntegerField(primary_key=True)
+    type = models.ForeignKey('CommunityType', on_delete=models.CASCADE)
+    deactivated = models.BooleanField(default=False)
+    description = models.TextField(default=None)
+    verified = models.BooleanField(null=True)
     name = models.CharField(max_length=64)
     site = models.CharField(max_length=128)
-    members = models.PositiveIntegerField()
+    members = models.PositiveIntegerField(blank=True)
     # age_limits=
-    description = models.TextField(blank=True)
-    site = models.CharField(max_length=128)
-
-    def save(self, *args, **kwargs):
-        post_data = {'remote_api_file_field': self.file}
-        get_data_from_vk()
-        requests.post(REMOTE_API_URL, data=post_data)
-        super(Community).save()
+    objects = models.Manager()
+    # def save(self, *args, **kwargs):
+    #     post_data = {'remote_api_file_field': self.file}
+    #     get_data_from_vk()
+    #     requests.post(REMOTE_API_URL, data=post_data)
+    #     super(Community).save()
 
 
 class Audience(models.Model):
