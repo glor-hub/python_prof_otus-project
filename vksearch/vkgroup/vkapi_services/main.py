@@ -3,7 +3,7 @@ import logging
 
 import aiohttp
 
-from .vkapiclient import VKApiClient
+from vksearch.vkgroup.vkapiclient import VKApiClient
 
 
 def logging_init(logging_file):

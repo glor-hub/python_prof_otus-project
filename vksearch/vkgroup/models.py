@@ -15,19 +15,19 @@ from django.db import models
 #     (NONE, 'None')
 # ]
 class CommunityType(models.Model):
-    name = models.TextField(unique=True)
+    name = models.TextField(unique=True, db_index=True)
 
 
 # Create your models here.
 class Community(models.Model):
-    vk_id = models.PositiveIntegerField(primary_key=True)
-    type = models.ForeignKey('CommunityType', on_delete=models.CASCADE)
+    vk_id = models.PositiveIntegerField(primary_key=True, null=False)
+    type = models.ForeignKey('CommunityType', on_delete=models.CASCADE, null=True)
     deactivated = models.BooleanField(default=False)
-    description = models.TextField(default=None)
+    description = models.TextField(default='')
     verified = models.BooleanField(null=True)
     name = models.CharField(max_length=64)
     site = models.CharField(max_length=128)
-    members = models.PositiveIntegerField(blank=True)
+    members = models.PositiveIntegerField(blank=True, default=0)
     # age_limits=
     objects = models.Manager()
     # def save(self, *args, **kwargs):

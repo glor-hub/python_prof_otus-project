@@ -1,6 +1,6 @@
 import logging
 
-from . import vkapiclient
+from .. import vkapiclient
 from .base_task import BaseTask
 from ..models import Community
 
