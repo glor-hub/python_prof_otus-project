@@ -5,8 +5,8 @@ from celery import Celery
 # Set the default Django settings module for the 'celery' program.
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'vksearch.settings')
 
-app = Celery('vksearch')
+celery_app = Celery('vksearch')
 
-app.conf.timezone = 'UTC'
-app.config_from_object("django.conf:settings", namespace="CELERY")
-app.autodiscover_tasks()
+celery_app.conf.timezone = 'UTC'
+celery_app.config_from_object("django.conf:settings", namespace="CELERY")
+celery_app.autodiscover_tasks()
