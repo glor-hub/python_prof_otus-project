@@ -1,8 +1,6 @@
 from django.db import models
 
 
-
-
 # age_limit = models.SmallIntegerField(blank=True, null=True)
 # updated = models.DateTimeField()
 # audience_updated = models.DateTimeField()
@@ -15,7 +13,9 @@ from django.db import models
 #     (NONE, 'None')
 # ]
 class CommunityType(models.Model):
-    name = models.TextField(unique=True, db_index=True)
+    name = models.TextField(unique=True)
+
+    objects = models.Manager()
 
 
 # Create your models here.
@@ -23,7 +23,7 @@ class Community(models.Model):
     vk_id = models.PositiveIntegerField(primary_key=True, null=False)
     type = models.ForeignKey('CommunityType', on_delete=models.CASCADE, null=True)
     deactivated = models.BooleanField(default=False)
-    description = models.TextField(default='')
+    description = models.TextField(default='', null=True)
     verified = models.BooleanField(null=True)
     name = models.CharField(max_length=64)
     site = models.CharField(max_length=128)

@@ -5,11 +5,11 @@ from celery import shared_task
 from datetime import datetime
 
 from . import vkapiclient
-from .models import Community
+from .models import Community, CommunityType
 
 token = vkapiclient.VKApiClient.get_token_list()[0]
 version = vkapiclient.VERSION
-ids = ','.join(str(id) for id in range(1, 5))
+ids = ','.join(str(id) for id in range(1, 500))
 
 URL_PATTERN = (
     'https://api.vk.com/method/groups.getById?group_ids={ids}&'
@@ -38,19 +38,40 @@ def create_task():
     if data_list:
         # logging.info(f'data received')
         print(data_list)
+        types = ['group', 'page', 'event']
+        for type in types:
+            comm_type = CommunityType.objects.get_or_create(
+                name=type,
+            )
+            print(comm_type)
         for data in data_list:
             # count += 1
             # if data.get('deactivated') or not data.get('members'):
             #     continue
             vk_id = int(data.get('id'))
+            type = data.get('type')
+            # deactivated = int(data.get('deactivated'))
+            description = data.get('description')
+            # verified = int(data.get('verified'))
             print(vk_id)
+            comm_type = CommunityType.objects.get(
+                name=type
+            )
             comm = Community.objects.get_or_create(
-                vk_id=vk_id)
+                vk_id=vk_id,
+                # deactivated=deactivated,
+                description=description
+                # verified=verified
+            )
+            comm = Community.objects.get(
+                vk_id=vk_id
+                      )
+            comm.type = comm_type
+
+            comm.save()
             print(comm)
-        print(r)
+        # print(r)
         return {"status": True}
-
-
 
 
 print(token)
