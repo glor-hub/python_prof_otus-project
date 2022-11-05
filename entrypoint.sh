@@ -1,7 +1,7 @@
 #!/bin/sh
 set -xeu
 
-python manage.py migrate
-python manage.py collectstatic --no-input --clear
+python vksearch/manage.py migrate
+#python  vksearch/manage.py collectstatic --no-input --clear
 
 exec "$@"

@@ -9,7 +9,7 @@ from .models import Community, CommunityType
 
 token = vkapiclient.VKApiClient.get_token_list()[0]
 version = vkapiclient.VERSION
-ids = ','.join(str(id) for id in range(1, 500))
+ids = ','.join(str(id) for id in range(1, 12))
 
 URL_PATTERN = (
     'https://api.vk.com/method/groups.getById?group_ids={ids}&'

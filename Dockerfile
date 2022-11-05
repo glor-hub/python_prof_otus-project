@@ -2,7 +2,7 @@
 FROM python:3.9.9-buster
 
 # set work directory
-WORKDIR /vksearch
+WORKDIR /project
 
 # set environment variables
 ENV PYTHONDONTWRITEBYTECODE 1

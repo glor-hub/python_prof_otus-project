@@ -2,30 +2,65 @@ version: '3'
 services:
   pg:
     image: postgres:15.0
+    hostname: pg
     environment:
       POSTGRES_DB: postgres
       POSTGRES_USER: user
       POSTGRES_PASSWORD: password
+#    networks:
+#      - main
     ports:
       - "5432:5432"
     volumes:
       - pg-data:/var/lib/postgresql/data/
-  web:
-    build:
-      context: .
-    command: python manage.py runserver 0.0.0.0:8000
+
+  rabbitmq:
+    image: rabbitmq
+    container_name: rabbitmq
+    hostname: rabbitmq
+#    networks:
+#      - main
     ports:
-      - 8000:8000
+      - "5672:5672"
+    restart: on-failure
+
+  web:
+    build: .
+#      context: .
+    command: python vksearch/manage.py runserver 0.0.0.0:8000
+    hostname: app
+#    networks:
+#      - main
+    ports:
+      - "0.0.0.0:8000:8000"
     env_file:
       - ./.env
+    expose:
+      - "8000"
     depends_on:
       - pg
+      - rabbitmq
+
+  celery:
+    build: .
+    command: celery  --app=vksearh/ worker --loglevel=INFO
+    #    command: celery worker --app=celery_app --loglevel=info --logfile=logs/celery.log
+    env_file:
+      - ./.env
+#    environment:
+#      - CELERY_BROKER='amqp://localhost:5672'
+#      - CELERY_BACKEND='rpc://'
+#    networks:
+#      - main
+    depends_on:
+      - web
+      - pg
+      - rabbitmq
+
+#networks:
+#  main:
 
 volumes:
   pg-data:
-
-
-
-
 
 
