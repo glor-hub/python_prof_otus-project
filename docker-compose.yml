@@ -25,7 +25,9 @@ services:
     restart: on-failure
 
   web:
-    build: .
+    build:
+      context: .
+      dockerfile: ./Dockerfile
     command: python vksearch/manage.py runserver 0.0.0.0:8000
 #    networks:
 #      - main
@@ -35,19 +37,23 @@ services:
       - ./.env
     expose:
       - "8000"
+    volumes:
+      - ./:/app
     depends_on:
       - pg
       - rabbitmq
 
   celery:
-    build: .
-    command: celery  -A vksearh worker --loglevel=INFO
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    command: celery -A vksearch.vksearch worker --loglevel=INFO
     #    command: celery worker --app=celery_app --loglevel=info --logfile=logs/celery.log
     env_file:
       - ./.env
-#    environment:
-#      - CELERY_BROKER='amqp://localhost:5672'
-#      - CELERY_BACKEND='rpc://'
+    environment:
+      - CELERY_BROKER='amqp://localhost:5672'
+      - CELERY_BACKEND='amqp://localhost:5672'
 #    networks:
 #      - main
     depends_on:

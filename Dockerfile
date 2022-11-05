@@ -2,7 +2,8 @@
 FROM python:3.9.9-buster
 
 # set work directory
-WORKDIR /app
+WORKDIR WORKDIR /app
+
 
 # set environment variables
 ENV PYTHONDONTWRITEBYTECODE 1
@@ -18,11 +19,14 @@ COPY ./poetry.lock ./poetry.lock
 RUN poetry install --no-dev --no-ansi
 
 # copy entrypoint.sh
-COPY ./entrypoint.sh ./entrypoint.sh
+#COPY ./entrypoint.sh .
 
 # copy project
 COPY . .
 
 # run entrypoint.sh
+#RUN #chmod +x ./entrypoint.sh
+#ENTRYPOINT ["bash", "./entrypoint.sh"]
+#ENTRYPOINT ["/usr/src/app/entrypoint.sh"]
 RUN chmod +x ./entrypoint.sh
 ENTRYPOINT ["bash", "./entrypoint.sh"]
