@@ -26,9 +26,7 @@ services:
 
   web:
     build: .
-#      context: .
     command: python vksearch/manage.py runserver 0.0.0.0:8000
-    hostname: app
 #    networks:
 #      - main
     ports:
@@ -43,7 +41,7 @@ services:
 
   celery:
     build: .
-    command: celery  --app=vksearh/ worker --loglevel=INFO
+    command: celery  -A vksearh worker --loglevel=INFO
     #    command: celery worker --app=celery_app --loglevel=info --logfile=logs/celery.log
     env_file:
       - ./.env
