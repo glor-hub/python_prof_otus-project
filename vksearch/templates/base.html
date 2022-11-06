@@ -11,15 +11,36 @@
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/main.css' %}">
     <title>
-        {% block title %}
-        {% endblock %}
+        {% block title %} {{ title }}
+        {% endblock %}}
     </title>
 
 </head>
 
 <body>
 
- {% block main_content %}
+<ul>
+    {% if messages %}
+    <ul class="messages">
+        {% for message in messages %}
+        {{ message }}
+        {% endfor %}
+    </ul>
+    {% endif %}
+</ul>
+
+<ul>
+    {% if user.is_anonymous %}
+    <li><a href="{% url "siteauth:login" %}">Login</a></li>
+    <li><a href="{% url "siteauth:signup" %}">Signup</a></li>
+    {% else %}
+    <li><a href="{% url "siteauth:logout" %}">Logout</a></li>
+    <li><a href="{% url "siteauth:settings" user.pk %}">{{user.username}}</a></li>
+    {% endif %}
+</ul>
+
+{% block main_content %}
+
 
 {% endblock %}
 

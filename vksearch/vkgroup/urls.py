@@ -2,8 +2,8 @@ from django.contrib import admin
 from django.urls import path, include
 
 app_name = 'vkgroup'
-from .views import view
-
+from .views import  search_profile, search_result
 urlpatterns = [
-    path('', view, name='test'),
+    path('', search_profile, name='search'),
+    path('result/', search_result, name='result'),
 ]

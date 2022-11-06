@@ -20,16 +20,11 @@
 <!--</div>-->
 {% block main_content %}
 <h5>
-    Welcome to our site!
-    Здесь вы можете найти целевую аудиторию!
-
+    Здесь будет форма для выбра критериев поиска
 
 </h5>
-{% if user.is_anonymous %}
-<li><a href="{% url "siteauth:signup" %}">Search your audience!</a></li>
-{% else %}
-<li><a href="{% url "vkgroup:search" %}">Search your audience</a></li>
-{% endif %}
+
+<a href="{% url "vkgroup:result" %}">On searching</a>
 
 {% endblock %}
 

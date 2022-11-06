@@ -4,12 +4,12 @@ from django.contrib import admin
 from django.urls import path, include
 
 from vksearch.settings import DEBUG
-from vksearch import view
+from .view import index
 
 urlpatterns = [
-    path('', view.home, name='home'),
+    path('', index, name='home'),
     path('vksearh/', include('vkgroup.urls', namespace='vkgroup')),
-    # path('siteauth/', include('siteauth.urls', namespace='siteauth')),
+    path('siteauth/', include('siteauth.urls', namespace='siteauth')),
     path('admin/', admin.site.urls),
 ]
 
