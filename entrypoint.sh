@@ -1,6 +1,6 @@
-#!/usr/bin/env bash
+#!/bin/bash
 set -xeu
-
+#make --quiet --directory="$HOME/celery" clean-pyc
 echo "Apply migrations"
 #if [ "$DATABASE" = "postgres" ]
 #then

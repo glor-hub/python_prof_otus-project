@@ -16,18 +16,21 @@ services:
 
   rabbitmq:
     image: rabbitmq
+    command: rabbitmq-server
     container_name: rabbitmq
     hostname: rabbitmq
 #    networks:
 #      - main
+    volumes:
+      - .:/app
     ports:
       - "5672:5672"
     restart: on-failure
 
   web:
-    build:
-      context: .
-      dockerfile: ./Dockerfile
+    build: .
+#      context: .
+#      dockerfile: ./Dockerfile
     command: python vksearch/manage.py runserver 0.0.0.0:8000
 #    networks:
 #      - main
@@ -38,26 +41,30 @@ services:
     expose:
       - "8000"
     volumes:
-      - ./:/app
+      - .:/app
     depends_on:
       - pg
       - rabbitmq
+#      - celery
 
   celery:
-    build:
-      context: .
-      dockerfile: ./Dockerfile
+    build: .
+#      context: .
+#      dockerfile: ./Dockerfile
     command: celery -A vksearch.vksearch worker --loglevel=INFO
+#    working_dir: /vksearch/vksearch
     #    command: celery worker --app=celery_app --loglevel=info --logfile=logs/celery.log
+    volumes:
+      - .:/app
     env_file:
       - ./.env
-    environment:
-      - CELERY_BROKER='amqp://localhost:5672'
-      - CELERY_BACKEND='amqp://localhost:5672'
+#    environment:
+#      - CELERY_BROKER='amqp://user:**@rabbit1:5672'
+#      - CELERY_BACKEND='amqp://user:**@rabbit1:5672'
 #    networks:
 #      - main
     depends_on:
-      - web
+#      - web
       - pg
       - rabbitmq
 
