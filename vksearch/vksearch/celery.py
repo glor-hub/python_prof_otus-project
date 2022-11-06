@@ -17,7 +17,7 @@ settings.configure()
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "vksearch.settings")
 
 
-celery_app = Celery('vksearch',backend='rpc://')
+celery_app = Celery('vksearch')
 # celery_app.config_from_envvar('CELERY_CONFIG_MODULE')
 
 # celery_app.conf.timezone = 'UTC'

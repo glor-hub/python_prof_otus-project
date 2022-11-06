@@ -49,13 +49,13 @@ def create_task():
             # if data.get('deactivated') or not data.get('members'):
             #     continue
             vk_id = int(data.get('id'))
-            type = data.get('type')
+            dtype = data.get('type')
             # deactivated = int(data.get('deactivated'))
             description = data.get('description')
             # verified = int(data.get('verified'))
             print(vk_id)
             comm_type = CommunityType.objects.get(
-                name=type
+                name=dtype
             )
             comm = Community.objects.get_or_create(
                 vk_id=vk_id,

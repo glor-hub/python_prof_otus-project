@@ -16,12 +16,13 @@ def search_profile(request):
 
 def search_result(request):
     task = create_task.delay()
-    task_id = task.id
-    task = celery_app.AsyncResult(task_id)
-    task_status = str(task.status)
+    # task_id = task.id
+    # task = celery_app.AsyncResult(task_id)
+    # task_status = str(task.status)
+    task_status=True
     context = {
         'title': 'Search Result',
         'task_status': task_status,
-        'task_id': task_id
+        # 'task_id': task_id
     }
     return render(request, 'result.html', context)
