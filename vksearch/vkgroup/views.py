@@ -21,5 +21,7 @@ def search_result(request):
     task_status = str(task.status)
     context = {
         'title': 'Search Result',
+        'task_status': task_status,
+        'task_id': task_id
     }
-    return render(request, 'result.html', task_status, task_id, context)
+    return render(request, 'result.html', context)

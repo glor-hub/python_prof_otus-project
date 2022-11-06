@@ -14,12 +14,14 @@ from django.conf import settings
 # export DJANGO_SETTINGS_MODULE="vksearch.settings"
 
 settings.configure()
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'vksearch.settings')
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "vksearch.settings")
 
 
-celery_app = Celery('vksearch')
+celery_app = Celery('vksearch',backend='rpc://')
 # celery_app.config_from_envvar('CELERY_CONFIG_MODULE')
 
-celery_app.conf.timezone = 'UTC'
+# celery_app.conf.timezone = 'UTC'
 celery_app.config_from_object("django.conf:settings", namespace="CELERY")
-celery_app.autodiscover_tasks(lambda: settings.INSTALLED_APPS)
+# celery_app.autodiscover_tasks(lambda: settings.INSTALLED_APPS)
+celery_app.autodiscover_tasks()
+
