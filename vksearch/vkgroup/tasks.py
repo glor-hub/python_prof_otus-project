@@ -31,7 +31,24 @@ url = build_url(ids, version, token)
 # "}')
 
 @shared_task()
-def create_task():
+def task_vk_get_data_communities(ids, version, token):
+    url = build_url(ids, version, token)
+    r = requests.get(url)
+    comm_data_list = r.json().get('response')
+    return comm_data_list
+
+def parse_data_communities():
+    pass
+
+@shared_task()
+def task_write_data_communities_to_db():
+    pass
+
+def process_data_communities():
+
+
+@shared_task()
+def test_create_task():
     r = requests.get(url)
     data_list = r.json().get('response')
     # print('type',type(data_list[0]))

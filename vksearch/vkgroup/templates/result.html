@@ -1,10 +1,12 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends 'base.html' %}
 
-</body>
-</html>
+{% block main_content %}
+<h5>
+    Здесь будет форма для выбора критериев поиска
+</h5>
+
+task id: {{task id}}
+<br>
+task status: {{task status}}
+
+{% endblock %}

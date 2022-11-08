@@ -2,20 +2,20 @@ from django.shortcuts import render
 
 import logging
 
-from . import tasks
-# from tasks import create_task
+from tasks import test_create_task
+
 from vksearch import celery_app
 
 logger = logging.getLogger(__name__)
 
-def search_profile(request):
+def test_search_profile(request):
     # to do form
     context = {
         'title': 'Search Profile'
     }
     return render(request, 'profile.html', context)
 
-def search_result(request):
+def test_search_result(request):
     # task = create_task.delay()
     # task_id = task.id
     # task = celery_app.AsyncResult(task_id)
@@ -27,11 +27,27 @@ def search_result(request):
     #     # 'task_id': task_id
     # def view(request):
         # main.main_run()
-    task = tasks.create_task.delay()
-    task_id = task.id
+    task = test_create_task.delay()
+    t_id = task.id
     task = celery_app.AsyncResult(task_id)
-    status = task.status
+    t_status = task.status
     context = {
-        'title': 'Uraaa'
+        'title': 'Uraaa',
+        'task_id': t_id,
+        'task_status': t_status
     }
     return render(request, 'result.html', context)
+
+def search_profile(request):
+    # to do form
+    context = {
+        'title': 'Search Profile'
+    }
+    return render(request, 'profile.html', context)
+
+def search_result(request):
+    # to do
+    context = {
+        'title': 'Search Profile'
+    }
+    return render(request, 'profile.html', context)

@@ -12,11 +12,11 @@ from django.conf import settings
 # os.environ.setdefault('CELERY_CONFIG_MODULE', 'celeryconfig')
 # export DJANGO_SETTINGS_MODULE="vksearch.settings"
 
-settings.configure()
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "vksearch.vksearch.settings")
+# settings.configure()
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "vksearch.settings")
 
 
-celery_app = Celery('vksearch.vksearch')
+celery_app = Celery('vksearch')
 # celery_app.config_from_envvar('CELERY_CONFIG_MODULE')
 
 # celery_app.conf.timezone = 'UTC'
