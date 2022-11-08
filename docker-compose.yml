@@ -27,14 +27,14 @@ services:
     ports:
       - "5672:5672"
     volumes:
-      - .:/app
+      - ./vksearch:/app
     restart: always
 
   web:
-    build:
-      context: .
-      dockerfile: ./Dockerfile
-    command: python vksearch/manage.py runserver 0.0.0.0:8000
+    build: ./vksearch
+#      context: .
+#      dockerfile: ./Dockerfile
+    command: python manage.py runserver 0.0.0.0:8000
 #    networks:
 #      - main
     ports:
@@ -44,23 +44,23 @@ services:
     expose:
       - "8000"
     volumes:
-      - .:/app
+      - ./vksearch:/app/
     depends_on:
       - pg
       - rabbitmq
 #      - celery
 
   celery:
-    build:
-      context: .
-      dockerfile: ./Dockerfile
-    command: celery -A vksearch.vksearch worker -c 2 --loglevel=info
+    build: ./vksearch
+#      context: .
+#      dockerfile: ./Dockerfile
+    command: celery -A vksearch worker -c 2 --loglevel=info
 #    command: celery -A vksearch.vksearch worker --loglevel=INFO --without-gossip --without-mingle
 #    command: celery -A vksearch.vksearch worker   -l info
 #    working_dir: /vksearch/vksearch
     #    command: celery worker --app=celery_app --loglevel=info --logfile=logs/celery.log
     volumes:
-      - .:/app
+      - ./vksearch:/app/
     env_file:
       - ./.env
 #    environment:
@@ -69,11 +69,22 @@ services:
 #    networks:
 #      - main
     depends_on:
-#      - web
+      - web
       - rabbitmq
 #      - db
 #    restart: always
 
+  dashboard:
+    build: ./vksearch
+    command:  flower -A vksearch --port=5555 --broker=amqp://guest:guest@rabbitmq:5672/
+    ports:
+      - "5555:5555"
+    env_file:
+      - ./.env
+    depends_on:
+      - web
+      - rabbitmq
+      - celery
 #networks:
 #  main:
 
