@@ -45,6 +45,7 @@ def task_write_data_communities_to_db():
     pass
 
 def process_data_communities():
+    pass
 
 
 @shared_task()

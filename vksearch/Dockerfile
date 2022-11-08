@@ -11,8 +11,8 @@ ENV PYTHONUNBUFFERED 1
 RUN pip install poetry==1.1.13
 RUN poetry config virtualenvs.create false
 
-COPY ../pyproject.toml /app/
-COPY ../poetry.lock /app/
+COPY ./pyproject.toml /app/
+COPY ./poetry.lock /app/
 
 # install dependencies
 RUN poetry install --no-dev --no-ansi

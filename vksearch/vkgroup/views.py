@@ -2,7 +2,7 @@ from django.shortcuts import render
 
 import logging
 
-from tasks import test_create_task
+from .tasks import test_create_task
 
 from vksearch import celery_app
 
@@ -29,7 +29,7 @@ def test_search_result(request):
         # main.main_run()
     task = test_create_task.delay()
     t_id = task.id
-    task = celery_app.AsyncResult(task_id)
+    task = celery_app.AsyncResult(t_id)
     t_status = task.status
     context = {
         'title': 'Uraaa',

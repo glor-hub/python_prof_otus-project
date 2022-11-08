@@ -27,7 +27,7 @@ class VKApiClient:
     @staticmethod
     def get_token_list():
         list_token = []
-        path = os.path.abspath(os.path.join(__file__, "../../.."))
+        path = os.path.abspath(os.path.join(__file__, "../../"))
         with open(join(path, 'tokens.txt')) as f:
             for line in f:
                 list_token.append(str(line).rstrip('\n'))

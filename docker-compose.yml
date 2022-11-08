@@ -74,17 +74,17 @@ services:
 #      - db
 #    restart: always
 
-  dashboard:
-    build: ./vksearch
-    command:  flower -A vksearch --port=5555 --broker=amqp://guest:guest@rabbitmq:5672/
-    ports:
-      - "5555:5555"
-    env_file:
-      - ./.env
-    depends_on:
-      - web
-      - rabbitmq
-      - celery
+#  dashboard:
+#    build: ./vksearch
+#    command:  flower -A vksearch --port=5555 --broker=amqp://guest:guest@rabbitmq:5672/
+#    ports:
+#      - "5555:5555"
+#    env_file:
+#      - ./.env
+#    depends_on:
+#      - web
+#      - rabbitmq
+#      - celery
 #networks:
 #  main:
 
