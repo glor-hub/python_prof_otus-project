@@ -7,8 +7,6 @@ services:
       POSTGRES_DB: postgres
       POSTGRES_USER: user
       POSTGRES_PASSWORD: password
-#    networks:
-#      - main
     ports:
       - "5432:5432"
     volumes:
@@ -19,11 +17,6 @@ services:
     command: rabbitmq-server
     container_name: rabbitmq
     hostname: rabbitmq
-#    environment:
-#          - RABBITMQ_DEFAULT_USER=guest
-#          - RABBITMQ_DEFAULT_PASS=guest
-#      networks:
-#      - main
     ports:
       - "5672:5672"
     volumes:
@@ -32,11 +25,7 @@ services:
 
   web:
     build: ./vksearch
-#      context: .
-#      dockerfile: ./Dockerfile
     command: python manage.py runserver 0.0.0.0:8000
-#    networks:
-#      - main
     ports:
       - "0.0.0.0:8000:8000"
     env_file:
@@ -48,44 +37,17 @@ services:
     depends_on:
       - pg
       - rabbitmq
-#      - celery
 
   celery:
     build: ./vksearch
-#      context: .
-#      dockerfile: ./Dockerfile
     command: celery -A vksearch worker -c 2 --loglevel=info
-#    command: celery -A vksearch.vksearch worker --loglevel=INFO --without-gossip --without-mingle
-#    command: celery -A vksearch.vksearch worker   -l info
-#    working_dir: /vksearch/vksearch
-    #    command: celery worker --app=celery_app --loglevel=info --logfile=logs/celery.log
     volumes:
       - ./vksearch:/app/
     env_file:
       - ./.env
-#    environment:
-#      - CELERY_BROKER='amqp://user:**@rabbit1:5672'
-#      - CELERY_BACKEND='amqp://user:**@rabbit1:5672'
-#    networks:
-#      - main
     depends_on:
       - web
       - rabbitmq
-#      - db
-#    restart: always
-
-#  flower:
-#    image: mher/flower
-#    command: flower -A vksearch --broker=amqp://user:**@rabbit1:5672 --port=5555
-##    environment:
-##      - CELERY_BROKER_URL=redis://redis:6379/0
-##      - FLOWER_PORT=8888
-#    ports:
-#      - "5555:5555"
-#    depends_on:
-#      - web
-#      - rabbitmq
-#      - celery
 
   flower:
     image: mher/flower
@@ -95,19 +57,6 @@ services:
     depends_on:
       - rabbitmq
 
-#  flower:
-#    build: ./vksearch
-##    image: mher/flower:0.9.7
-#    command: celery -A vksearch flower --loglevel=DEBUG --port=9090
-#    ports:
-#      - "9090:9090"
-#    env_file:
-#      - ./.env
-#    depends_on:
-#      - rabbitmq
-
-#networks:
-#  main:
 
 volumes:
   pg-data:

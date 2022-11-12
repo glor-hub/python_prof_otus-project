@@ -17,21 +17,12 @@ COPY ./poetry.lock /app/
 # install dependencies
 RUN poetry install --no-dev --no-ansi
 
-# copy entrypoint.sh
-#COPY ./entrypoint.sh .
-
 # copy project
 COPY . /app/
 WORKDIR /app/
 
 EXPOSE 8000
 
-#ENV HOME /home/$CELERY_USER
-#ENV PATH="$HOME/.pyenv/bin:$PATH"
 
-# run entrypoint.sh
-#RUN #chmod +x ./entrypoint.sh
-#ENTRYPOINT ["bash", "./entrypoint.sh"]
-#ENTRYPOINT ["/usr/src/app/entrypoint.sh"]
 RUN chmod +x ./entrypoint.sh
 ENTRYPOINT ["bash", "./entrypoint.sh"]
