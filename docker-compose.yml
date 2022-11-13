@@ -40,7 +40,7 @@ services:
 
   celery:
     build: ./vksearch
-    command: celery -A vksearch worker -c 2 --loglevel=info
+    command: celery -A vksearch worker -c 6 --loglevel=info
     volumes:
       - ./vksearch:/app/
     env_file:

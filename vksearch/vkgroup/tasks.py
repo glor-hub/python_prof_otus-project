@@ -59,6 +59,7 @@ def vk_get_communities_data():
             min_id=min_id,
             offset=offset
         )
+        # print(url_list)
         res = group(task_vk_get_data.s(url) for url in url_list)().get()
         for i in range(len(res)):
             if res[i] == 'Task completed':
@@ -76,13 +77,14 @@ def task_vk_get_data(url):
     data_list = r.json().get('response')
     if data_list:
         # logging.info(f'communities data from request number {count} received')
-        print(data_list)
+        # print(data_list)
         types = ['group', 'page', 'event']
         for type in types:
             comm_type, _ = CommunityType.objects.get_or_create(
                 name=type,
             )
         # print(comm_type)
+
         for data in data_list:
             dtype = data.get('type')
             comm_type, _ = CommunityType.objects.get_or_create(
@@ -110,7 +112,7 @@ def task_vk_get_data(url):
                 pass
             # print(comm)
         # return {"status": 'In progress'}
-        time.sleep(0.3)
+        time.sleep(0.2)
 
         if len(data_list) < vkapiclient.MAX_GROUPS_COUNT_PER_REQUEST:
             # return {"status": 'Task completed'}
