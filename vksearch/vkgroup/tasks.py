@@ -112,7 +112,7 @@ def task_vk_get_data(url):
                 pass
             # print(comm)
         # return {"status": 'In progress'}
-        time.sleep(0.2)
+        # time.sleep(0.2)
 
         if len(data_list) < vkapiclient.MAX_GROUPS_COUNT_PER_REQUEST:
             # return {"status": 'Task completed'}

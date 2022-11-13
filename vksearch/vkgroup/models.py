@@ -26,7 +26,7 @@ class Community(models.Model):
     age_vk = models.PositiveIntegerField(choices=AGE_VK_TYPES, null=True)
     description = models.TextField(null=True)
     verified = models.BooleanField(null=True)
-    name = models.TextField()
+    name = models.TextField(null=True)
     site = models.TextField(null=True)
     members = models.PositiveIntegerField(blank=True,null=True)
     status = models.TextField(null=True)
@@ -72,7 +72,7 @@ class AgeRange(models.Model):
 
 
 class Country(models.Model):
-    name = models.TextField(unique=True)
+    name = models.CharField(max_length=512,unique=True)
     objects = models.Manager()
 
     # method: database.getCountriesById
