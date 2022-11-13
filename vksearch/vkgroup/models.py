@@ -72,7 +72,7 @@ class AgeRange(models.Model):
 
 
 class Country(models.Model):
-    name = models.CharField(max_length=512,unique=True)
+    name = models.TextField(unique=True)
     objects = models.Manager()
 
     # method: database.getCountriesById
