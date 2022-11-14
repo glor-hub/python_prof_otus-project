@@ -18,16 +18,10 @@ from .models import Community, CommunityType,Country
 
 
 def get_communities_data():
-    min_id = 1
-    offset = vkapiclient.MAX_GROUPS_COUNT_PER_REQUEST
+    min_id=1
     vk_client = vkapiclient.VKApiClient()
-    pattern = vkapiclient.URL_PATTERN_GROUPS_BY_ID
     while True:
-        url_list, min_id_next = vk_client.build_community_url_list(
-            pattern=pattern,
-            min_id=min_id,
-            offset=offset
-        )
+        url_list, min_id_next = vk_client.build_community_url_list(min_id)
         # print(url_list)
         res = group(task_load_and_store_communities.s(url) for url in url_list)().get()
         for i in range(len(res)):
@@ -96,7 +90,7 @@ def get_countries_data():
 )
 def task_load_and_store_countries():
     vk_client = vkapiclient.VKApiClient()
-    url = vk_client.build_country_url()
+    url = vk_client.build_countries_url()
     r = requests.get(url, timeout=(vkapiclient.REQ_CONNECT_TIMEOUT, vkapiclient.REQ_READ_TIMEOUT))
     data_list = r.json().get('response')
     if data_list:

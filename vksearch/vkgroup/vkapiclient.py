@@ -15,10 +15,11 @@ VERSION = os.getenv('VK_API_VERSION')
 UPDATE_DATA_PERIOD = os.getenv('VK_UPDATE_DATA_PERIOD')
 MIN_TIME_PER_REQUEST = os.getenv('VK_MIN_TIME_PER_REQUEST')
 MAX_GROUPS_COUNT_PER_REQUEST = 500
+MAX_GROUPS_MEMBERS_COUNT_PER_REQUEST = 500
 REQ_CONNECT_TIMEOUT = 1
 REQ_READ_TIMEOUT = 3
-MAX_GROUPS_COUNT=100000
-MAX_COUNTRIES_COUNT =300
+MAX_GROUPS_COUNT = 100000
+MAX_COUNTRIES_COUNT = 300
 
 URL_PATTERN_GROUPS_BY_ID = (
     'https://api.vk.com/method/groups.getById?group_ids={ids}&'
@@ -28,6 +29,13 @@ URL_PATTERN_GROUPS_BY_ID = (
 URL_PATTERN_COUNTRIES_BY_ID = (
     'https://api.vk.com/method/database.getCountriesById?country_ids={ids}&'
     'v={version}&access_token={token}')
+
+URL_PATTERN_GROUPS_MEMBERS = (
+    'https://api.vk.com/method/execute?code={code}&v={version}&access_token={token}'
+)
+CODE_GROUPS_MEMBERS = ('API.groups.getMembers({"group_id":%d,"offset":%d,"count":1000,"sort":"id_asc",'
+                       '"fields":"sex,bdate,country,last_seen"})')
+
 
 class VKApiClient:
 
@@ -50,20 +58,24 @@ class VKApiClient:
         self.token_list = token_list
         return token_list
 
-    def build_community_url_list(self, pattern, min_id, offset):
+    def build_community_url_list(self, min_id):
         url_list = []
+        pattern = URL_PATTERN_GROUPS_BY_ID
+        offset = MAX_GROUPS_COUNT_PER_REQUEST
         for token in self.token_list:
             ids = ','.join(str(id) for id in range(int(min_id), int(min_id + offset)))
             url_list.append(pattern.format(ids=ids, version=self.version, token=token))
             min_id += offset
         return url_list, min_id
 
-    def build_country_url(self):
-        pattern=URL_PATTERN_COUNTRIES_BY_ID
-        ids = ','.join(str(id) for id in range(1, MAX_COUNTRIES_COUNT+1))
-        token=self.token_list[0]
-        url=pattern.format(ids=ids,version=self.version, token=token)
+    def build_countries_url(self):
+        pattern = URL_PATTERN_COUNTRIES_BY_ID
+        ids = ','.join(str(id) for id in range(1, MAX_COUNTRIES_COUNT + 1))
+        token = self.token_list[0]
+        url = pattern.format(ids=ids, version=self.version, token=token)
         return url
+
+    
 
     # async def run(self):
     #     print(len(self.token_list))
