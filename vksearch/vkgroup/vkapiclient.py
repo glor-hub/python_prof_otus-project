@@ -18,7 +18,7 @@ MAX_GROUPS_COUNT_PER_REQUEST = 500
 REQ_CONNECT_TIMEOUT = 1
 REQ_READ_TIMEOUT = 3
 MAX_GROUPS_COUNT=100000
-MAX_COUNTRIES_COUNT =350
+MAX_COUNTRIES_COUNT =300
 
 URL_PATTERN_GROUPS_BY_ID = (
     'https://api.vk.com/method/groups.getById?group_ids={ids}&'
@@ -26,7 +26,7 @@ URL_PATTERN_GROUPS_BY_ID = (
     'v={version}&access_token={token}')
 
 URL_PATTERN_COUNTRIES_BY_ID = (
-    'https://api.vk.com/method/database.getCountriesById?countries_ids={ids}&'
+    'https://api.vk.com/method/database.getCountriesById?country_ids={ids}&'
     'v={version}&access_token={token}')
 
 class VKApiClient:
@@ -50,13 +50,20 @@ class VKApiClient:
         self.token_list = token_list
         return token_list
 
-    def get_url_list(self, pattern, min_id, offset):
+    def build_community_url_list(self, pattern, min_id, offset):
         url_list = []
         for token in self.token_list:
             ids = ','.join(str(id) for id in range(int(min_id), int(min_id + offset)))
             url_list.append(pattern.format(ids=ids, version=self.version, token=token))
             min_id += offset
         return url_list, min_id
+
+    def build_country_url(self):
+        pattern=URL_PATTERN_COUNTRIES_BY_ID
+        ids = ','.join(str(id) for id in range(1, MAX_COUNTRIES_COUNT+1))
+        token=self.token_list[0]
+        url=pattern.format(ids=ids,version=self.version, token=token)
+        return url
 
     # async def run(self):
     #     print(len(self.token_list))

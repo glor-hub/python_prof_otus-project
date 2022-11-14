@@ -4,7 +4,7 @@ import logging
 
 # from .tasks import test_create_task,
 
-from .tasks import get_communities_data, get_countries_data, get_user_profiles
+from .tasks import get_communities_data, get_countries_data
 from vksearch import celery_app
 
 logger = logging.getLogger(__name__)
@@ -19,7 +19,7 @@ def test_search_profile(request):
 def test_search_result(request):
     get_communities_data()
     get_countries_data()
-    get_user_profiles()
+    # get_user_profiles()
     # task = test_create_task.delay()
     # t_id = task.id
     # task = celery_app.AsyncResult(t_id)
