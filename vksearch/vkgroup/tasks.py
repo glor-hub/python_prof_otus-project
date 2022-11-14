@@ -86,7 +86,55 @@ def task_vk_get_comm(url):
     return 'Task in progress'
 
 def get_countries_data():
-    # communities_count=vkapiclient.MAX_COUNTRIES_COUNT
+    min_id = 1
+    offset = vkapiclient.MAX_COUNTRIES_COUNT
+    vk_client = vkapiclient.VKApiClient()
+    pattern = vkapiclient.URL_PATTERN_COUNTRIES_BY_ID
+    while True:
+        url_list, min_id_next = vk_client.get_url_list(
+            pattern=pattern,
+            min_id=min_id,
+            offset=offset
+        )
+        res = group(task_vk_get_countries.s(url) for url in url_list)().get()
+        for i in range(len(res)):
+            if res[i] == 'Task completed':
+                return
+        min_id = min_id_next
+
+
+@shared_task(
+    default_retry_delay=1,
+    autoretry_for=(Exception,),
+    max_retries=3,
+)
+def task_vk_get_countries(url):
+    r = requests.get(url, timeout=(vkapiclient.REQ_CONNECT_TIMEOUT, vkapiclient.REQ_READ_TIMEOUT))
+    data_list = r.json().get('response')
+    if data_list:
+        # logging.info(f'communities data from request number {count} received')
+        for data in data_list:
+            params = {
+                'vk_id': data.get('id'),
+                'title': data.get('title')
+            }
+            try:
+                country, created = Community.objects.get_or_create(
+                **params
+            )
+                if created:
+                    country.save()
+            except IntegrityError:
+                pass
+        # time.sleep(0.2)
+        if len(data_list) < vkapiclient.MAX_COUNTRIES_COUNT:
+            return 'Task completed'
+    return 'Task in progress'
+
+def get_user_profiles():
+
+
+def get_user_data():
     min_id = 1
     offset = vkapiclient.MAX_COUNTRIES_COUNT
     vk_client = vkapiclient.VKApiClient()
@@ -110,7 +158,7 @@ def get_countries_data():
     autoretry_for=(Exception,),
     max_retries=3,
 )
-def task_vk_get_countries(url):
+def task_vk_get_user_profiles(url):
     r = requests.get(url, timeout=(vkapiclient.REQ_CONNECT_TIMEOUT, vkapiclient.REQ_READ_TIMEOUT))
     data_list = r.json().get('response')
     if data_list:
