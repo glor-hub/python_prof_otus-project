@@ -2,9 +2,9 @@ from django.shortcuts import render
 
 import logging
 
-# from .tasks import test_create_task
+# from .tasks import test_create_task,
 
-from .tasks import vk_get_communities_data
+from .tasks import get_communities_data, get_countries_data
 from vksearch import celery_app
 
 logger = logging.getLogger(__name__)
@@ -17,7 +17,8 @@ def test_search_profile(request):
     return render(request, 'profile.html', context)
 
 def test_search_result(request):
-    vk_get_communities_data()
+    get_communities_data()
+    get_countries_data()
     # task = test_create_task.delay()
     # t_id = task.id
     # task = celery_app.AsyncResult(t_id)
