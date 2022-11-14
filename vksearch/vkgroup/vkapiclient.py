@@ -6,6 +6,7 @@ from os.path import join, dirname, abspath
 import logging
 
 # from vksearch.vkgroup.vkapi_services.community import CommunityTask
+from .models import Community
 
 load_dotenv()
 # TOKEN_NUM = 3
@@ -15,6 +16,7 @@ VERSION = os.getenv('VK_API_VERSION')
 UPDATE_DATA_PERIOD = os.getenv('VK_UPDATE_DATA_PERIOD')
 MIN_TIME_PER_REQUEST = os.getenv('VK_MIN_TIME_PER_REQUEST')
 MAX_GROUPS_COUNT_PER_REQUEST = 500
+MAX_REQUESTS_PER_EXECUTE_METHOD = 25
 MAX_GROUPS_MEMBERS_COUNT_PER_REQUEST = 500
 REQ_CONNECT_TIMEOUT = 1
 REQ_READ_TIMEOUT = 3
@@ -34,7 +36,7 @@ URL_PATTERN_GROUPS_MEMBERS = (
     'https://api.vk.com/method/execute?code={code}&v={version}&access_token={token}'
 )
 CODE_GROUPS_MEMBERS = ('API.groups.getMembers({"group_id":%d,"offset":%d,"count":1000,"sort":"id_asc",'
-                       '"fields":"sex,bdate,country,last_seen"})')
+                       '"fields":",sex,bdate,country,city,last_seen"})')
 
 
 class VKApiClient:
@@ -75,7 +77,19 @@ class VKApiClient:
         url = pattern.format(ids=ids, version=self.version, token=token)
         return url
 
-    
+    def build_audience_url_list(self, min_id):
+        url_list = []
+        pattern = URL_PATTERN_GROUPS_MEMBERS
+        offset = MAX_GROUPS_MEMBERS_COUNT_PER_REQUEST
+        groups=Community.objects.filter(deactivated=False)
+        for token in self.token_list:
+            req_count = 1
+            while req_count <= MAX_REQUESTS_PER_EXECUTE_METHOD:
+
+            ids = ','.join(str(id) for id in range(int(min_id), int(min_id + offset)))
+            url_list.append(pattern.format(ids=ids, version=self.version, token=token))
+            min_id += offset
+        return url_list, min_id
 
     # async def run(self):
     #     print(len(self.token_list))
