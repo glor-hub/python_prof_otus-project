@@ -81,12 +81,12 @@ class VKApiClient:
         url_list = []
         pattern = URL_PATTERN_GROUPS_MEMBERS
         offset = MAX_GROUPS_MEMBERS_COUNT_PER_REQUEST
-        groups=Community.objects.filter(deactivated=False)
+        groups=Community.objects.filter(deactivated=False).order_by('pk')
         for token in self.token_list:
             req_count = 1
             while req_count <= MAX_REQUESTS_PER_EXECUTE_METHOD:
-
-            ids = ','.join(str(id) for id in range(int(min_id), int(min_id + offset)))
+                ids = ','.join(str(id) for id in groups.id)
+                req_count +=1
             url_list.append(pattern.format(ids=ids, version=self.version, token=token))
             min_id += offset
         return url_list, min_id
