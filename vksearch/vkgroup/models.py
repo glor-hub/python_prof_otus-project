@@ -30,7 +30,7 @@ class Community(models.Model):
     site = models.TextField(null=True)
     members = models.PositiveIntegerField(blank=True,null=True)
     status = models.TextField(null=True)
-    update=models.DateTimeField(auto_created=False, auto_now_add=True)
+    is_updated=models.DateTimeField(auto_created=False, auto_now_add=True)
 
     objects = models.Manager()
 

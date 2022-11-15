@@ -14,11 +14,11 @@ from datetime import datetime
 
 from . import vkapiclient
 
-from .models import Community, CommunityType,Country
+from .models import Community, CommunityType, Country
 
 
 def get_communities_data():
-    min_id=1
+    min_id = 1
     vk_client = vkapiclient.VKApiClient()
     while True:
         url_list, min_id_next = vk_client.build_community_url_list(min_id)
@@ -46,8 +46,6 @@ def task_load_and_store_communities(url):
             comm_type, _ = CommunityType.objects.get_or_create(
                 name=type,
             )
-        # print(comm_type)
-
         for data in data_list:
             vk_id = data.get('id')
             if vk_id > vkapiclient.MAX_GROUPS_COUNT:
@@ -57,7 +55,7 @@ def task_load_and_store_communities(url):
                 name=dtype
             )
             params = {
-                'vk_id': vk_id,
+                'pk': vk_id,
                 'deactivated': bool(data.get('deactivated')),
                 'description': data.get('description'),
                 'verified': data.get('verified'),
@@ -68,16 +66,24 @@ def task_load_and_store_communities(url):
                 'status': data.get('status')
             }
             try:
-                comm, created = Community.objects.get_or_create(
+                Community.objects.create(
                     **params
                 )
-                if created:
-                    comm.type = comm_type
-                    comm.save()
             except IntegrityError:
-                pass
-        # time.sleep(0.2)
+                comm = Community.objects.get(pk=vk_id)
+                comm.deactivated = bool(data.get('deactivated'))
+                comm.description = data.get('description')
+                comm.verified = data.get('verified')
+                comm.age_vk = data.get('age_limits')
+                comm.name = data.get('name')
+                comm.site = data.get('site')
+                comm.members = data.get('members_count')
+                comm.status = data.get('status')
+                comm.is_updated=datetime.now()
+                comm.save()
+                # time.sleep(0.2)
     return 'Task in progress'
+
 
 def get_countries_data():
     task_load_and_store_countries.delay()
@@ -96,18 +102,18 @@ def task_load_and_store_countries():
     if data_list:
         # logging.info(f'communities data from request number {count} received')
         for data in data_list:
+            id = data.get('id')
             params = {
-                'id': data.get('id'),
+                'pk': id,
                 'name': data.get('title')
             }
             try:
-                country, created = Country.objects.get_or_create(
-                **params
-            )
-                if created:
-                    country.save()
+                Country.objects.get_or_create(
+                    **params
+                )
             except IntegrityError:
-                pass
+                c = Country.objects.get(pk=id)
+                c.name = data.get('title')
+                c.save()
         # time.sleep(0.2)
     return 'Task completed'
-
