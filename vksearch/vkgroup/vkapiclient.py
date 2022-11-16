@@ -9,34 +9,39 @@ import logging
 from .models import Community
 
 load_dotenv()
-# TOKEN_NUM = 3
 
-# TOKEN = os.getenv('VK_API_TOKEN')
 VERSION = os.getenv('VK_API_VERSION')
 UPDATE_DATA_PERIOD = os.getenv('VK_UPDATE_DATA_PERIOD')
 MIN_TIME_PER_REQUEST = os.getenv('VK_MIN_TIME_PER_REQUEST')
-MAX_GROUPS_COUNT_PER_REQUEST = 500
-MAX_REQUESTS_PER_EXECUTE_METHOD = 25
-MAX_GROUPS_MEMBERS_COUNT_PER_REQUEST = 500
 REQ_CONNECT_TIMEOUT = 1
 REQ_READ_TIMEOUT = 3
+MAX_REQUESTS_PER_EXECUTE_METHOD = 25
+
+# communities
+MAX_GROUPS_COUNT_PER_REQUEST = 500
 MAX_GROUPS_COUNT = 100000
-MAX_COUNTRIES_COUNT = 237
 
 URL_PATTERN_GROUPS_BY_ID = (
     'https://api.vk.com/method/groups.getById?group_ids={ids}&'
     'fields=type,is_closed,name,description,members_count,status,verified,site,age_limits&'
     'v={version}&access_token={token}')
 
-URL_PATTERN_COUNTRIES_BY_ID = (
-    'https://api.vk.com/method/database.getCountriesById?country_ids={ids}&'
-    'v={version}&access_token={token}')
+# audience
+MAX_GROUPS_MEMBERS_COUNT_PER_REQUEST = 500
 
 URL_PATTERN_GROUPS_MEMBERS = (
     'https://api.vk.com/method/execute?code={code}&v={version}&access_token={token}'
 )
-CODE_GROUPS_MEMBERS = ('API.groups.getMembers({"group_id":%d,"offset":%d,"count":1000,"sort":"id_asc",'
-                       '"fields":",sex,bdate,country,city,last_seen"})')
+
+CODE = ('API.groups.getMembers({"group_id":{id},"offset":{offset},"count":1000,"sort":"id_asc",'
+        '"fields":"sex,bdate,country,city,last_seen"})')
+
+# countries
+MAX_COUNTRIES_COUNT = 237
+
+URL_PATTERN_COUNTRIES_BY_ID = (
+    'https://api.vk.com/method/database.getCountriesById?country_ids={ids}&'
+    'v={version}&access_token={token}')
 
 
 class VKApiClient:
@@ -46,6 +51,8 @@ class VKApiClient:
         self.update_period = UPDATE_DATA_PERIOD
         self.min_req_time = MIN_TIME_PER_REQUEST
         self.token_list = self.get_token_list()
+        self.max_users_per_req = MAX_GROUPS_MEMBERS_COUNT_PER_REQUEST // 500
+        self.max_reqs_per_execute = MAX_REQUESTS_PER_EXECUTE_METHOD // 25
         # self.tokens_count=len(self.token_list)
         # self.queue = asyncio.Queue()
         # self.tasks = []
@@ -77,27 +84,35 @@ class VKApiClient:
         url = pattern.format(ids=ids, version=self.version, token=token)
         return url
 
-    def build_audience_url_list(self, min_id):
+    def build_audience_url_list(self, group_id):
         url_list = []
         pattern = URL_PATTERN_GROUPS_MEMBERS
-        offset = MAX_GROUPS_MEMBERS_COUNT_PER_REQUEST
-        groups=Community.objects.filter(deactivated=False).order_by('pk')
+        comm = Community.objects.get(id=group_id)
+        group_members = comm.members
+        if not group_members:
+            return None
+        # groups = Community.objects.filter(deactivated=False).order_by('pk')
+        req_min = 0
+        users = group_members
         for token in self.token_list:
-            req_count = 1
-            while req_count <= MAX_REQUESTS_PER_EXECUTE_METHOD:
-                ids = ','.join(str(id) for id in groups.id)
-                req_count +=1
-            url_list.append(pattern.format(ids=ids, version=self.version, token=token))
-            min_id += offset
-        return url_list, min_id
+            code, req = self.build_audience_url_code(id=group_id, users=users, req_min_num=req_min)
 
-    # async def run(self):
-    #     print(len(self.token_list))
-    #     comm_task = CommunityTask()
-    #     task1 = asyncio.create_task(comm_task.vk_get_communities(self.session, self.token_list[9]))
-    #     self.tasks.append(task1)
-    #     # task2 = asyncio.create_task(self.process_urls_forever())
-    #     # self.tasks.append(task2)
-    #     await asyncio.gather(*self.tasks)
-    #     # print(token_list)
-    #     # print(len(list_token))
+            url_list.append(pattern.format(code=code, id=group_id, version=self.version, token=token))
+            if not req:
+                return url_list
+            req_min = req
+            users -= self.max_users_per_req * self.max_reqs_per_execute
+
+    def build_audience_url_code(self, id, users, req_min_num):
+        reqs_count = users % self.max_users_per_req + 1
+        if reqs_count <= self.max_reqs_per_execute:
+            code = ','.join(
+                CODE.format(id=id, offset=self.max_users_per_req * req_num) for req_num in range(req_min_num, reqs_count))
+            req_min_next = 0
+        else:
+            code = ','.join(
+                CODE.format(id=id, offset=self.max_users_per_req * req_num) for req_num in
+                range(req_min_num, self.max_reqs_per_execute + 1))
+            req_min_next = reqs_count + 1
+        return (code, req_min_next)
+
