@@ -20,9 +20,11 @@ from .models import Community, CommunityType, Country
 def get_communities_data():
     min_id = 1
     vk_client = vkapiclient.VKApiClient()
+    create_community_type()
     while True:
         url_list, min_id_next = vk_client.build_community_url_list(min_id)
         # print(url_list)
+        # time.sleep(0)
         res = group(task_load_and_store_communities.s(url) for url in url_list)().get()
         for i in range(len(res)):
             if res[i] == 'Task completed':
@@ -38,24 +40,21 @@ def get_communities_data():
 def task_load_and_store_communities(url):
     r = requests.get(url, timeout=(vkapiclient.REQ_CONNECT_TIMEOUT, vkapiclient.REQ_READ_TIMEOUT))
     data_list = r.json().get('response')
+
     if data_list:
         # logging.info(f'communities data from request number {count} received')
         # print(data_list)
-        types = ['group', 'page', 'event']
-        for type in types:
-            comm_type, _ = CommunityType.objects.get_or_create(
-                name=type,
-            )
+        #
         for data in data_list:
             vk_id = data.get('id')
             if vk_id > vkapiclient.MAX_GROUPS_COUNT:
                 return 'Task completed'
             dtype = data.get('type')
-            comm_type, _ = CommunityType.objects.get_or_create(
+            CommunityType.objects.get_or_create(
                 name=dtype
             )
             params = {
-                'pk': vk_id,
+                'vk_id': vk_id,
                 'deactivated': bool(data.get('deactivated')),
                 'description': data.get('description'),
                 'verified': data.get('verified'),
@@ -66,11 +65,11 @@ def task_load_and_store_communities(url):
                 'status': data.get('status')
             }
             try:
-                Community.objects.create(
+                comm = Community.objects.create(
                     **params
                 )
             except IntegrityError:
-                comm = Community.objects.get(pk=vk_id)
+                comm = Community.objects.get(vk_id=vk_id)
                 comm.deactivated = bool(data.get('deactivated'))
                 comm.description = data.get('description')
                 comm.verified = data.get('verified')
@@ -79,9 +78,9 @@ def task_load_and_store_communities(url):
                 comm.site = data.get('site')
                 comm.members = data.get('members_count')
                 comm.status = data.get('status')
-                comm.is_updated=datetime.now()
+                comm.is_updated = datetime.now()
                 comm.save()
-                # time.sleep(0.2)
+    # time.sleep(0.1)
     return 'Task in progress'
 
 
@@ -108,12 +107,26 @@ def task_load_and_store_countries():
                 'name': data.get('title')
             }
             try:
-                Country.objects.get_or_create(
+                c= Country.objects.create(
                     **params
                 )
             except IntegrityError:
-                c = Country.objects.get(pk=id)
+                c = Country.objects.get(id=id)
                 c.name = data.get('title')
                 c.save()
         # time.sleep(0.2)
+    return 'Task completed'
+
+
+# def create_community_type():
+#     task_create_community_type.delay()
+
+
+
+def create_community_type():
+    types = ['group', 'page', 'event']
+    for type in types:
+        comm_type, _ = CommunityType.objects.get_or_create(
+            name=type,
+        )
     return 'Task completed'
