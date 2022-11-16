@@ -1,5 +1,6 @@
 from __future__ import absolute_import, unicode_literals
 
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import IntegrityError
 
 import logging
@@ -31,6 +32,19 @@ def get_communities_data():
                 return
         min_id = min_id_next
 
+def update_communities_data():
+    min_id = 1
+    vk_client = vkapiclient.VKApiClient()
+    create_community_type()
+    while True:
+        url_list, min_id_next = vk_client.build_community_url_list(min_id)
+        # print(url_list)
+        # time.sleep(0)
+        res = group(task_load_and_store_communities.s(url) for url in url_list)().get()
+        for i in range(len(res)):
+            if res[i] == 'Task completed':
+                return
+        min_id = min_id_next
 
 @shared_task(
     default_retry_delay=1,
@@ -50,11 +64,12 @@ def task_load_and_store_communities(url):
             if vk_id > vkapiclient.MAX_GROUPS_COUNT:
                 return 'Task completed'
             dtype = data.get('type')
-            CommunityType.objects.get_or_create(
+            c_type, _ = CommunityType.objects.get_or_create(
                 name=dtype
             )
             params = {
                 'vk_id': vk_id,
+                'type': c_type,
                 'deactivated': bool(data.get('deactivated')),
                 'description': data.get('description'),
                 'verified': data.get('verified'),
@@ -69,20 +84,43 @@ def task_load_and_store_communities(url):
                     **params
                 )
             except IntegrityError:
-                comm = Community.objects.get(vk_id=vk_id)
-                comm.deactivated = bool(data.get('deactivated'))
-                comm.description = data.get('description')
-                comm.verified = data.get('verified')
-                comm.age_vk = data.get('age_limits')
-                comm.name = data.get('name')
-                comm.site = data.get('site')
-                comm.members = data.get('members_count')
-                comm.status = data.get('status')
-                comm.is_updated = datetime.now()
-                comm.save()
+                pass
     # time.sleep(0.1)
     return 'Task in progress'
 
+@shared_task(
+    default_retry_delay=1,
+    autoretry_for=(Exception,),
+    max_retries=3,
+)
+def task_update_and_store_communities(url):
+    r = requests.get(url, timeout=(vkapiclient.REQ_CONNECT_TIMEOUT, vkapiclient.REQ_READ_TIMEOUT))
+    data_list = r.json().get('response')
+    if data_list:
+        # logging.info(f'communities data from request number {count} received')
+        # print(data_list)
+        #
+        for data in data_list:
+            vk_id = data.get('id')
+            if vk_id > vkapiclient.MAX_GROUPS_COUNT:
+                return 'Task completed'
+            dtype = data.get('type')
+            c_type, _ = CommunityType.objects.get_or_create(
+                name=dtype
+            )
+            comm = Community.objects.get(vk_id=vk_id)
+            comm.deactivated = bool(data.get('deactivated'))
+            comm.description = data.get('description')
+            comm.verified = data.get('verified')
+            comm.age_vk = data.get('age_limits')
+            comm.name = data.get('name')
+            comm.site = data.get('site')
+            comm.members = data.get('members_count')
+            comm.status = data.get('status')
+            comm.is_updated = datetime.now()
+            comm.save()
+    # time.sleep(0.1)
+    return 'Task in progress'
 
 def get_countries_data():
     task_load_and_store_countries.delay()
@@ -107,7 +145,7 @@ def task_load_and_store_countries():
                 'name': data.get('title')
             }
             try:
-                c= Country.objects.create(
+                c = Country.objects.create(
                     **params
                 )
             except IntegrityError:
@@ -118,15 +156,21 @@ def task_load_and_store_countries():
     return 'Task completed'
 
 
-# def create_community_type():
-#     task_create_community_type.delay()
-
-
-
-def create_community_type():
+def create_community_types():
     types = ['group', 'page', 'event']
     for type in types:
         comm_type, _ = CommunityType.objects.get_or_create(
             name=type,
         )
     return 'Task completed'
+
+
+def check_for_update_data_from_vk():
+    SECONDS_PER_DAY = 86400000
+    try:
+        comm = Community.objects.get(vk_id=1)
+        if (datetime.now() - comm.is_updated).total_seconds() >SECONDS_PER_DAY
+            update_communities_data()
+    except ObjectDoesNotExist:
+        get_communities_data()
+        get_countries_data()

@@ -4,8 +4,9 @@ import logging
 
 # from .tasks import test_create_task,
 
-from .tasks import get_communities_data, get_countries_data, create_community_type
+# from .tasks import get_communities_data, get_countries_data, create_community_type
 from vksearch import celery_app
+from .tasks import check_for_update_data_from_vk
 
 logger = logging.getLogger(__name__)
 
@@ -16,10 +17,12 @@ def test_search_profile(request):
     }
     return render(request, 'profile.html', context)
 
+
 def test_search_result(request):
+    check_for_update_data_from_vk()
     # create_community_type()
-    get_communities_data()
-    get_countries_data()
+    # get_communities_data()
+    # get_countries_data()
 
 
     # get_user_profiles()
