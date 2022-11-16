@@ -18,6 +18,23 @@ from . import vkapiclient
 from .models import Community, CommunityType, Country, AudienceProfile
 
 
+# def get_communities_data(update_flag=False):
+#     min_id = 1
+#     vk_client = vkapiclient.VKApiClient()
+#     create_community_types()
+#     while True:
+#         url_list, min_id_next = vk_client.build_community_url_list(min_id)
+#         # print(url_list)
+#         # time.sleep(0)
+#         if update_flag:
+#             res = group(task_update_and_store_communities.s(url) for url in url_list)().get()
+#         else:
+#             res = group(task_load_and_store_communities.s(url) for url in url_list)().get()
+#         for i in range(len(res)):
+#             if res[i] == 'Task completed':
+#                 return
+#         min_id = min_id_next
+
 def get_communities_data(update_flag=False):
     min_id = 1
     vk_client = vkapiclient.VKApiClient()
@@ -27,14 +44,13 @@ def get_communities_data(update_flag=False):
         # print(url_list)
         # time.sleep(0)
         if update_flag:
-            res = group(task_update_and_store_communities.s(url) for url in url_list)().get()
+            res = group(task_update_and_store_communities.s(url) for url in url_list).apply_async().get()
         else:
-            res = group(task_load_and_store_communities.s(url) for url in url_list)().get()
+            res = group(task_load_and_store_communities.s(url) for url in url_list).apply_async().get()
         for i in range(len(res)):
             if res[i] == 'Task completed':
                 return
         min_id = min_id_next
-
 
 @shared_task(
     default_retry_delay=1,
@@ -70,9 +86,12 @@ def task_load_and_store_communities(url):
                 'status': data.get('status')
             }
             try:
-                comm = Community.objects.create(
+                comm,created = Community.objects.get_or_create(
                     **params
                 )
+                if created:
+                    comm.type = c_type
+                    comm.save()
             except IntegrityError:
                 pass
     # time.sleep(0.1)
@@ -100,6 +119,7 @@ def task_update_and_store_communities(url):
                 name=dtype
             )
             comm = Community.objects.get(vk_id=vk_id)
+            comm.type = c_type
             comm.deactivated = bool(data.get('deactivated'))
             comm.description = data.get('description')
             comm.verified = data.get('verified')
@@ -137,7 +157,7 @@ def task_load_and_store_countries():
                 'name': data.get('title')
             }
             try:
-                c = Country.objects.create(
+                c,_ = Country.objects.get_or_create(
                     **params
                 )
             except IntegrityError:
@@ -201,60 +221,59 @@ def create_audience_profile():
 def check_for_update_data_from_vk():
     try:
         comm = Community.objects.get(vk_id=1)
-        if (datetime.now() - comm.is_updated).total_seconds() > vkapiclient.UPDATE_DATA_PERIOD:
+        if (datetime.now() - comm.is_updated).total_seconds() > float(vkapiclient.UPDATE_DATA_PERIOD):
             get_communities_data(update_flag=True)
     except ObjectDoesNotExist:
         get_communities_data(update_flag=False)
         get_countries_data()
-    process_audience()
+    # process_audience()
 
 
-def process_audience():
-    get_audience_data()
-    parse_audience_data()
-    handle_audience()
-
-
-def get_audience_data():
-    comm = Community.objects.filter(deactivated=False).order_by('pk')
-    for id in comm.vk_id:
-        get_audience_data_for_group(id)
-
-
-def get_audience_data_for_group(id):
-    url_list = build_audience_url_list(id)
-    res = group(task_load_users_for_group.s(url) for url in url_list)().get()
-    for i in range(len(res)):
-        if res[i] == 'Task completed':
-            return
-    min_id = min_id_next
-
-
-@shared_task(
-    default_retry_delay=1,
-    autoretry_for=(Exception,),
-    max_retries=3,
-)
-def task_load_users_for_group(url):
-    vk_client = vkapiclient.VKApiClient()
-
-    r = requests.get(url, timeout=(vkapiclient.REQ_CONNECT_TIMEOUT, vkapiclient.REQ_READ_TIMEOUT))
-    data_list = r.json().get('response')
-    if data_list:
-        # logging.info(f'communities data from request number {count} received')
-        for data in data_list:
-            id = data.get('id')
-            params = {
-                'pk': id,
-                'name': data.get('title')
-            }
-            try:
-                c = Country.objects.create(
-                    **params
-                )
-            except IntegrityError:
-                c = Country.objects.get(id=id)
-                c.name = data.get('title')
-                c.save()
-        # time.sleep(0.2)
-    return 'Task completed'
+# def process_audience():
+#     get_audience_data()
+#     parse_audience_data()
+#     handle_audience()
+#
+#
+# def get_audience_data():
+#     comm = Community.objects.filter(deactivated=False).order_by('pk')
+#     for id in comm.vk_id:
+#         get_audience_data_for_group(id)
+#
+#
+# def get_audience_data_for_group(id):
+#     url_list = build_audience_url_list(id)
+#     res = group(task_load_users_for_group.s(url) for url in url_list)().get()
+#     for i in range(len(res)):
+#         if res[i] == 'Task completed':
+#             return
+#
+#
+# @shared_task(
+#     default_retry_delay=1,
+#     autoretry_for=(Exception,),
+#     max_retries=3,
+# )
+# def task_load_users_for_group(url):
+#     vk_client = vkapiclient.VKApiClient()
+#
+#     r = requests.get(url, timeout=(vkapiclient.REQ_CONNECT_TIMEOUT, vkapiclient.REQ_READ_TIMEOUT))
+#     data_list = r.json().get('response')
+#     if data_list:
+#         # logging.info(f'communities data from request number {count} received')
+#         for data in data_list:
+#             id = data.get('id')
+#             params = {
+#                 'pk': id,
+#                 'name': data.get('title')
+#             }
+#             try:
+#                 c = Country.objects.create(
+#                     **params
+#                 )
+#             except IntegrityError:
+#                 c = Country.objects.get(id=id)
+#                 c.name = data.get('title')
+#                 c.save()
+#         # time.sleep(0.2)
+#     return 'Task completed'
