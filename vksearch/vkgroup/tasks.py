@@ -15,7 +15,7 @@ from datetime import datetime
 
 from . import vkapiclient
 
-from .models import Community, CommunityType, Country, AudienceProfile
+from .models import Community, CommunityType, Country, AudienceProfile, Audience
 
 
 # def get_communities_data(update_flag=False):
@@ -52,6 +52,7 @@ def get_communities_data(update_flag=False):
                 return
         min_id = min_id_next
 
+
 @shared_task(
     default_retry_delay=1,
     autoretry_for=(Exception,),
@@ -86,7 +87,7 @@ def task_load_and_store_communities(url):
                 'status': data.get('status')
             }
             try:
-                comm,created = Community.objects.get_or_create(
+                comm, created = Community.objects.get_or_create(
                     **params
                 )
                 if created:
@@ -157,7 +158,7 @@ def task_load_and_store_countries():
                 'name': data.get('title')
             }
             try:
-                c,_ = Country.objects.get_or_create(
+                c, _ = Country.objects.get_or_create(
                     **params
                 )
             except IntegrityError:
@@ -212,11 +213,12 @@ def create_audience_profile():
     for country in countries:
         for sex in sexes:
             for age in ages:
-                AudienceProfile.objects.create(
+                aud,_=AudienceProfile.objects.get_or_createcreate(
                     country=country,
                     sex=sex,
                     age_range=age
                 )
+
 
 def check_for_update_data_from_vk():
     try:
@@ -226,54 +228,62 @@ def check_for_update_data_from_vk():
     except ObjectDoesNotExist:
         get_communities_data(update_flag=False)
         get_countries_data()
-    # process_audience()
+        create_audience_profile()
+    process_audience()
 
 
-# def process_audience():
-#     get_audience_data()
-#     parse_audience_data()
-#     handle_audience()
+def process_audience():
+    get_audience_data()
+
+def get_audience_data():
+    comms = Community.objects.filter(deactivated=False).order_by('pk')
+    for comm in comms:
+        get_audience_data_for_group(comm.vk_id)
+
+
+def get_audience_data_for_group(id):
+    vk_client = vkapiclient.VKApiClient()
+    url_list = vk_client.build_audience_url_list(id)
+    res = group([task_load_users_for_community.s(url, id) for url in url_list]).apply_async().get()
+    for i in range(len(res)):
+        if res[i] == 'Task completed':
+            return
+
+
 #
 #
-# def get_audience_data():
-#     comm = Community.objects.filter(deactivated=False).order_by('pk')
-#     for id in comm.vk_id:
-#         get_audience_data_for_group(id)
-#
-#
-# def get_audience_data_for_group(id):
-#     url_list = build_audience_url_list(id)
-#     res = group(task_load_users_for_group.s(url) for url in url_list)().get()
-#     for i in range(len(res)):
-#         if res[i] == 'Task completed':
-#             return
-#
-#
-# @shared_task(
-#     default_retry_delay=1,
-#     autoretry_for=(Exception,),
-#     max_retries=3,
-# )
-# def task_load_users_for_group(url):
-#     vk_client = vkapiclient.VKApiClient()
-#
-#     r = requests.get(url, timeout=(vkapiclient.REQ_CONNECT_TIMEOUT, vkapiclient.REQ_READ_TIMEOUT))
-#     data_list = r.json().get('response')
-#     if data_list:
-#         # logging.info(f'communities data from request number {count} received')
-#         for data in data_list:
-#             id = data.get('id')
-#             params = {
-#                 'pk': id,
-#                 'name': data.get('title')
-#             }
-#             try:
-#                 c = Country.objects.create(
-#                     **params
-#                 )
-#             except IntegrityError:
-#                 c = Country.objects.get(id=id)
-#                 c.name = data.get('title')
-#                 c.save()
-#         # time.sleep(0.2)
-#     return 'Task completed'
+@shared_task(
+    default_retry_delay=1,
+    autoretry_for=(Exception,),
+    max_retries=3,
+)
+def task_load_users_for_community(url, id):
+    vk_client = vkapiclient.VKApiClient()
+
+    r = requests.get(url, timeout=(vkapiclient.REQ_CONNECT_TIMEOUT, vkapiclient.REQ_READ_TIMEOUT))
+    data_list = r.json().get('response').get('items')
+    if data_list:
+        # logging.info(f'communities data from request number {count} received')
+        for data in data_list:
+            if not data:
+                continue
+            age_range = vk_client.parse_bdate(data.get('bdate'))
+            country = vk_client.parse_country(data.get('country'))
+            sex = vk_client.parse_sex(data.get('sex'))
+            params = {
+                'age_range': age_range,
+                'country': country,
+                'sex': sex
+            }
+            aud_profile, created = AudienceProfile.objects.get_or_create(
+                **params
+            )
+            comm_aud, created = Audience.objects.get_or_create(
+                community__vk_id=id,
+                profile=aud_profile
+            )
+            comm_aud.count += 1
+            comm_aud.save()
+            print(comm_aud)
+        # time.sleep(0.2)
+    return 'Task completed', print(comm_aud.count, comm_aud.community)

@@ -7,7 +7,7 @@ class CommunityType(models.Model):
         ('PAGE', 'page'),
         ('EVENT', 'event')
     ]
-    name = models.TextField(choices=GROUPS_TYPES, default='GROUP',unique=True)
+    name = models.TextField(choices=GROUPS_TYPES, default='GROUP', unique=True)
     objects = models.Manager()
 
 
@@ -28,9 +28,9 @@ class Community(models.Model):
     verified = models.BooleanField(null=True)
     name = models.TextField(null=True)
     site = models.TextField(null=True)
-    members = models.PositiveIntegerField(blank=True,null=True)
+    members = models.PositiveIntegerField(blank=True, null=True)
     status = models.TextField(null=True)
-    is_updated=models.DateTimeField(auto_created=False, auto_now_add=True)
+    is_updated = models.DateTimeField(auto_created=False, auto_now_add=True)
 
     objects = models.Manager()
 
@@ -72,7 +72,7 @@ class AgeRange(models.Model):
 
 
 class Country(models.Model):
-    name = models.TextField(unique=True,null=False)
+    name = models.TextField(unique=True, null=False)
     objects = models.Manager()
 
     # method: database.getCountriesById
@@ -92,6 +92,7 @@ class AudienceProfile(models.Model):
     country = models.ForeignKey('Country', on_delete=models.CASCADE, null=True)
     age_range = models.ForeignKey('AgeRange', on_delete=models.CASCADE, null=True)
     sex = models.SmallIntegerField(choices=SEX_CHOICES, default=SEX_UNKNOWN)
+    objects = models.Manager()
 
     class Meta:
         unique_together = ('country', 'age_range', 'sex')
@@ -100,7 +101,11 @@ class AudienceProfile(models.Model):
 class Audience(models.Model):
     community = models.ForeignKey(Community, on_delete=models.CASCADE, null=True)
     profile = models.ForeignKey(AudienceProfile, on_delete=models.CASCADE, null=True)
-    count = models.IntegerField()
+    count = models.IntegerField(default=0)
+    objects = models.Manager()
+
+    class Meta:
+        unique_together = ('community', 'profile')
 
     def __str__(self):
         return (f'audience id:{self.pk} of community {self.community.name} ')
