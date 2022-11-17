@@ -15,7 +15,7 @@ from datetime import datetime
 
 from . import vkapiclient
 
-from .models import Community, CommunityType, Country, AudienceProfile, Audience
+from .models import Community, CommunityType, Country, AudienceProfile, Audience, AgeRange
 
 
 # def get_communities_data(update_flag=False):
@@ -38,7 +38,7 @@ from .models import Community, CommunityType, Country, AudienceProfile, Audience
 def get_communities_data(update_flag=False):
     min_id = 1
     vk_client = vkapiclient.VKApiClient()
-    create_community_types()
+    CommunityType.create_table_with_data()
     while True:
         url_list, min_id_next = vk_client.build_community_url_list(min_id)
         # print(url_list)
@@ -169,55 +169,13 @@ def task_load_and_store_countries():
     return 'Task completed'
 
 
-def create_community_types():
-    types = ['group', 'page', 'event']
-    for type in types:
-        comm_type, _ = CommunityType.objects.get_or_create(
-            name=type,
-        )
-    return 'Task completed'
-
-
-def create_audience_profile():
-    SEX_UNKNOWN = 0
-    SEX_FEMALE = 1
-    SEX_MALE = 2
-    sexes = (SEX_UNKNOWN, SEX_FEMALE, SEX_MALE)
-
-    AGE_UNKNOWN = 1
-    AGE_16_18 = 2
-    AGE_18_24 = 3
-    AGE_24_30 = 4
-    AGE_30_35 = 5
-    AGE_35_45 = 6
-    AGE_45_55 = 7
-    AGE_55_65 = 8
-    AGE_65_OLDER = 9
-
-    ages = (
-        AGE_UNKNOWN,
-        AGE_16_18,
-        AGE_18_24,
-        AGE_24_30,
-        AGE_30_35,
-        AGE_35_45,
-        AGE_45_55,
-        AGE_55_65,
-        AGE_65_OLDER
-    )
-
-    countries_list = []
-    countries = Country.objects.exclude(name='')
-    for country in countries:
-        countries_list.append(country.name)
-    for country in countries:
-        for sex in sexes:
-            for age in ages:
-                aud,_=AudienceProfile.objects.get_or_createcreate(
-                    country=country,
-                    sex=sex,
-                    age_range=age
-                )
+# def create_community_types():
+#     types = ['group', 'page', 'event']
+#     for type in types:
+#         comm_type, _ = CommunityType.objects.get_or_create(
+#             name=type,
+#         )
+#     return 'Task completed'
 
 
 def check_for_update_data_from_vk():
@@ -228,38 +186,38 @@ def check_for_update_data_from_vk():
     except ObjectDoesNotExist:
         get_communities_data(update_flag=False)
         get_countries_data()
-        create_audience_profile()
+        AgeRange.create_table_with_data()
+        # create_audience_profile()
     process_audience()
 
 
 def process_audience():
     get_audience_data()
 
+
 def get_audience_data():
-    comms = Community.objects.filter(deactivated=False).order_by('pk')
+    comms = Community.objects.filter(deactivated=False).order_by('vk_id')
     for comm in comms:
-        get_audience_data_for_group(comm.vk_id)
+        vk_id=comm.vk_id
+        get_audience_data_for_group(vk_id)
 
 
-def get_audience_data_for_group(id):
+def get_audience_data_for_group(g_id):
     vk_client = vkapiclient.VKApiClient()
-    url_list = vk_client.build_audience_url_list(id)
-    res = group([task_load_users_for_community.s(url, id) for url in url_list]).apply_async().get()
+    url_list = vk_client.build_audience_url_list(g_id)
+    res = group([task_load_users_for_community.s(url, g_id) for url in url_list]).apply_async().get()
     for i in range(len(res)):
         if res[i] == 'Task completed':
             return
 
 
-#
-#
 @shared_task(
     default_retry_delay=1,
     autoretry_for=(Exception,),
     max_retries=3,
 )
-def task_load_users_for_community(url, id):
+def task_load_users_for_community(url, g_id):
     vk_client = vkapiclient.VKApiClient()
-
     r = requests.get(url, timeout=(vkapiclient.REQ_CONNECT_TIMEOUT, vkapiclient.REQ_READ_TIMEOUT))
     data_list = r.json().get('response').get('items')
     if data_list:
@@ -279,11 +237,11 @@ def task_load_users_for_community(url, id):
                 **params
             )
             comm_aud, created = Audience.objects.get_or_create(
-                community__vk_id=id,
+                community__vk_id=g_id,
                 profile=aud_profile
             )
             comm_aud.count += 1
             comm_aud.save()
-            print(comm_aud)
+            # print(comm_aud)
         # time.sleep(0.2)
-    return 'Task completed', print(comm_aud.count, comm_aud.community)
+    return 'Task completed'

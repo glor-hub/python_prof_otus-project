@@ -7,9 +7,22 @@ class CommunityType(models.Model):
         ('PAGE', 'page'),
         ('EVENT', 'event')
     ]
+    data = [
+        {'type': 'group'},
+        {'type': 'page'},
+        {'type': 'event'}
+    ]
     name = models.TextField(choices=GROUPS_TYPES, default='GROUP', unique=True)
     objects = models.Manager()
 
+    @classmethod
+    def create_table_with_data(cls):
+        type_instances = []
+        for datum in cls.data:
+            type_instances.append(
+                CommunityType(name=datum['type'])
+            )
+        CommunityType.objects.bulk_create(type_instances)
 
 class Community(models.Model):
     AGE_UNKNOWN = 1
@@ -55,17 +68,38 @@ class AgeRange(models.Model):
     AGE_65_OLDER = 9
 
     AGES_RANGE = [
-        (1, 'ALL'),
-        (2, '16-18'),
-        (3, '18-24'),
-        (4, '24-30'),
-        (5, '30-35'),
-        (6, '35-45'),
-        (7, '45-55'),
-        (8, '55-65'),
-        (9, '65+')
+        (AGE_UNKNOWN, 'ALL'),
+        (AGE_16_18, '16-18'),
+        (AGE_18_24, '18-24'),
+        (AGE_24_30, '24-30'),
+        (AGE_30_35, '30-35'),
+        (AGE_35_45, '35-45'),
+        (AGE_45_55, '45-55'),
+        (AGE_55_65, '55-65'),
+        (AGE_65_OLDER, '65+')
+    ]
+    data = [
+        {'age': AGE_UNKNOWN},
+        {'age': AGE_16_18},
+        {'age': AGE_18_24},
+        {'age': AGE_24_30},
+        {'age': AGE_30_35},
+        {'age': AGE_35_45},
+        {'age': AGE_45_55},
+        {'age': AGE_55_65},
+        {'age': AGE_65_OLDER}
     ]
     range = models.PositiveIntegerField(choices=AGES_RANGE, default=AGE_UNKNOWN, unique=True)
+    objects = models.Manager()
+
+    @classmethod
+    def create_table_with_data(cls):
+        age_instances = []
+        for datum in cls.data:
+            age_instances.append(
+                AgeRange(range=datum['age'])
+            )
+        AgeRange.objects.bulk_create(age_instances)
 
     def __str__(self):
         return f'age range: {self.range}'
