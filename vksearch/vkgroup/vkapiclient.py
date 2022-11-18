@@ -1,12 +1,14 @@
 import asyncio
 import os
+from datetime import date, timedelta
+
 from dotenv import load_dotenv
 from os.path import join, dirname, abspath
 
 import logging
 
 # from vksearch.vkgroup.vkapi_services.community import CommunityTask
-from .models import Community
+from .models import Community, AgeRange, Country, AudienceProfile
 
 load_dotenv()
 
@@ -20,7 +22,8 @@ MAX_REQUESTS_PER_EXECUTE_METHOD = 1
 
 # communities
 MAX_GROUPS_COUNT_PER_REQUEST = 500
-MAX_GROUPS_COUNT = 100000
+# MAX_GROUPS_COUNT = 100000
+MAX_GROUPS_COUNT = 1500
 
 URL_PATTERN_GROUPS_BY_ID = (
     'https://api.vk.com/method/groups.getById?group_ids={ids}&'
@@ -55,6 +58,7 @@ class VKApiClient:
         self.count = MAX_GROUPS_MEMBERS_COUNT_PER_REQUEST
         self.step = MAX_GROUPS_MEMBERS_COUNT_PER_REQUEST
         self.max_requests = MAX_REQUESTS_PER_EXECUTE_METHOD
+        self.countries_list = self.get_countries_from_db()
         # self.tokens_count=len(self.token_list)
         # self.queue = asyncio.Queue()
         # self.tasks = []
@@ -104,11 +108,60 @@ class VKApiClient:
             offset += self.step * self.max_requests
         return url_list
 
-    def parse_bdate(self, bdate):
-        return bdate
+    @staticmethod
+    def get_countries_from_db():
+        countries_list = []
+        countries = Country.objects.all()
+        for c in countries:
+            countries_list.append(c.name)
+        return countries_list
 
-    def parse_country(self, country):
-        return country
+    @staticmethod
+    def parse_bdate(data):
+        bdate = data.get('bdate')
+        if bdate is None:
+            return AgeRange.AGE_UNKNOWN
+        parts = bdate.split('.')
+        if len(parts) != 3:
+            return AgeRange.AGE_UNKNOWN
+        try:
+            bdate = date(int(parts[2]), int(parts[1]), int(parts[0]))
+        except ValueError:
+            return AgeRange.AGE_UNKNOWN
+        now = date.today()
+        if bdate > now:
+            return AgeRange.AGE_UNKNOWN
+        age = (now - bdate).days / 365.25
+        if age < 16:
+            return AgeRange.AGE_16_YOUNGER
+        if age < 19:
+            return AgeRange.AGE_16_18
+        if age < 25:
+            return AgeRange.AGE_18_24
+        if age < 30:
+            return AgeRange.AGE_25_29
+        if age < 35:
+            return AgeRange.AGE_30_34
+        if age < 45:
+            return AgeRange.AGE_35_44
+        if age < 55:
+            return AgeRange.AGE_45_54
+        if age < 65:
+            return AgeRange.AGE_55_64
+        return AgeRange.AGE_65_OLDER
 
-    def parse_sex(self, sex):
-        return sex
+    def parse_country(self, data):
+        country_name = data.get('country').get('title')
+        if country_name is None:
+            return Country.UNKNOWN_COUNTRY
+        if country_name in self.countries_list:
+            return country_name
+        else:
+            return Country.UNKNOWN_COUNTRY
+
+    @staticmethod
+    def parse_sex(data):
+        sex_id = data.get('sex')
+        if sex_id not in (0, 1, 2):
+            return AudienceProfile.SEX_UNKNOWN
+        return sex_id

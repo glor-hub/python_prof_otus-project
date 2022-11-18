@@ -10,6 +10,7 @@ import logging
 import time
 
 import requests
+from django.db.models import Q, F
 
 from vksearch.celery import celery_app
 from celery import group, shared_task
@@ -199,11 +200,12 @@ def process_audience():
 
 
 def get_audience_data():
-    # comms = Community.objects.filter(deactivated=False).order_by('vk_id')
+    # comms = Community.objects.filter(deactivated=False).exclude(Q(members__isnull=True) | Q(members__exact='')).order_by('vk_id')
     # for comm in comms:
     #     vk_id = comm.vk_id
     #     get_audience_data_for_group(vk_id)
     get_audience_data_for_group(78)
+
 
 def get_audience_data_for_group(g_id):
     vk_client = vkapiclient.VKApiClient()
@@ -228,26 +230,45 @@ def get_audience_data_for_group(g_id):
     max_retries=3,
 )
 def task_load_users_for_community(url, g_id):
+    vk_client = vkapiclient.VKApiClient()
     r = requests.get(url, timeout=(vkapiclient.REQ_CONNECT_TIMEOUT, vkapiclient.REQ_READ_TIMEOUT))
     response = r.json().get('response')
-    if not response:
-        return 'Task completed'
-        # logging.info(f'communities data from request number {count} received')
+    # logging.info(f'communities data from request number {count} received')
     for resp in response:
         if not resp:
             continue
         data_list = resp.get('items')
-        # path = os.path.abspath(os.path.join(__file__, "."))
-        # with open(join(path,'example.txt'), 'w') as f:
-        #     f.write(data_list[:5])
-        # print(data_list[:5])
+        if not data_list:
+            return 'Task completed'
         for data in data_list:
-            args = data.get('bdate')
+            age=AgeRange.objects.get(range=vk_client.parse_bdate(data))
+            country=Country.objects.get(name=vk_client.parse_country(data))
+            params = {
+                "age_range": age,
+                "sex": vk_client.parse_sex(data),
+                "country": country
+            }
+            try:
+                profile, _ = AudienceProfile.objects.get_or_create(
+                    **params
+                )
+            except IntegrityError:
+                profile, _ = AudienceProfile.objects.get(
+                    **params
+                )
+            params = {
+                "community": Community(vk_id=g_id),
+                "profile": profile
+            }
+            audience, _ = Audience.objects.get_or_create(
+                **params
+            )
+            audience.count = F('count') + 1
 
     time.sleep(5)
-    print(url)
-    return response
-    # return 'Task in progress'
+    # print(url)
+    # return response
+    return 'Task in progress'
     # age_range = vk_client.parse_bdate(data.get('bdate'))
     # country = vk_client.parse_country(data.get('country'))
     # sex = vk_client.parse_sex(data.get('sex'))

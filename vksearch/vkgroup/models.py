@@ -18,9 +18,9 @@ class CommunityType(models.Model):
     @classmethod
     def create_table_with_data(cls):
         type_instances = []
-        for datum in cls.data:
+        for d in cls.data:
             type_instances.append(
-                CommunityType(name=datum['type'])
+                CommunityType(name=d['type'])
             )
         CommunityType.objects.bulk_create(type_instances)
 
@@ -58,35 +58,38 @@ class Community(models.Model):
 
 class AgeRange(models.Model):
     AGE_UNKNOWN = 1
-    AGE_16_18 = 2
-    AGE_18_24 = 3
-    AGE_24_30 = 4
-    AGE_30_35 = 5
-    AGE_35_45 = 6
-    AGE_45_55 = 7
-    AGE_55_65 = 8
-    AGE_65_OLDER = 9
+    AGE_16_YOUNGER = 2
+    AGE_16_18 = 3
+    AGE_18_24 = 4
+    AGE_25_29 = 5
+    AGE_30_34 = 6
+    AGE_35_44 = 7
+    AGE_45_54 = 8
+    AGE_55_64 = 9
+    AGE_65_OLDER = 10
 
     AGES_RANGE = [
         (AGE_UNKNOWN, 'ALL'),
+        (AGE_16_YOUNGER, '16-'),
         (AGE_16_18, '16-18'),
         (AGE_18_24, '18-24'),
-        (AGE_24_30, '24-30'),
-        (AGE_30_35, '30-35'),
-        (AGE_35_45, '35-45'),
-        (AGE_45_55, '45-55'),
-        (AGE_55_65, '55-65'),
+        (AGE_25_29, '25-29'),
+        (AGE_30_34, '30-34'),
+        (AGE_35_44, '35-44'),
+        (AGE_45_54, '45-54'),
+        (AGE_55_64, '55-64'),
         (AGE_65_OLDER, '65+')
     ]
     data = [
         {'age': AGE_UNKNOWN},
+        {'age': AGE_16_YOUNGER},
         {'age': AGE_16_18},
         {'age': AGE_18_24},
-        {'age': AGE_24_30},
-        {'age': AGE_30_35},
-        {'age': AGE_35_45},
-        {'age': AGE_45_55},
-        {'age': AGE_55_65},
+        {'age': AGE_25_29},
+        {'age': AGE_30_34},
+        {'age': AGE_35_44},
+        {'age': AGE_45_54},
+        {'age': AGE_55_64},
         {'age': AGE_65_OLDER}
     ]
     range = models.PositiveIntegerField(choices=AGES_RANGE, default=AGE_UNKNOWN, unique=True)
@@ -106,6 +109,7 @@ class AgeRange(models.Model):
 
 
 class Country(models.Model):
+    UNKNOWN_COUNTRY=0
     name = models.TextField(unique=True, null=False)
     objects = models.Manager()
 
@@ -123,8 +127,8 @@ class AudienceProfile(models.Model):
         (SEX_FEMALE, 'Female'),
         (SEX_MALE, 'Male')
     )
-    country = models.ForeignKey('Country', on_delete=models.CASCADE, null=True)
-    age_range = models.ForeignKey('AgeRange', on_delete=models.CASCADE, null=True)
+    country = models.ForeignKey('Country', on_delete=models.CASCADE, null=False, default=1)
+    age_range = models.ForeignKey('AgeRange', on_delete=models.CASCADE, null=False, default=1)
     sex = models.SmallIntegerField(choices=SEX_CHOICES, default=SEX_UNKNOWN)
     objects = models.Manager()
 
@@ -133,8 +137,8 @@ class AudienceProfile(models.Model):
 
 
 class Audience(models.Model):
-    community = models.ForeignKey(Community, on_delete=models.CASCADE, null=True)
-    profile = models.ForeignKey(AudienceProfile, on_delete=models.CASCADE, null=True)
+    community = models.ForeignKey(Community, on_delete=models.CASCADE, null=False, default=1)
+    profile = models.ForeignKey(AudienceProfile, on_delete=models.CASCADE, null=False,default=1)
     count = models.IntegerField(default=0)
     objects = models.Manager()
 
@@ -142,4 +146,4 @@ class Audience(models.Model):
         unique_together = ('community', 'profile')
 
     def __str__(self):
-        return (f'audience id:{self.pk} of community {self.community.name} ')
+        return (f'audience id:{self.pk} of community {self.community.name}')
