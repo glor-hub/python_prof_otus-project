@@ -15,7 +15,8 @@ UPDATE_DATA_PERIOD = os.getenv('VK_UPDATE_DATA_PERIOD')
 MIN_TIME_PER_REQUEST = os.getenv('VK_MIN_TIME_PER_REQUEST')
 REQ_CONNECT_TIMEOUT = 1
 REQ_READ_TIMEOUT = 3
-MAX_REQUESTS_PER_EXECUTE_METHOD = 25
+# MAX_REQUESTS_PER_EXECUTE_METHOD = 25
+MAX_REQUESTS_PER_EXECUTE_METHOD = 1
 
 # communities
 MAX_GROUPS_COUNT_PER_REQUEST = 500
@@ -27,7 +28,7 @@ URL_PATTERN_GROUPS_BY_ID = (
     'v={version}&access_token={token}')
 
 # audience
-MAX_GROUPS_MEMBERS_COUNT_PER_REQUEST = 5
+MAX_GROUPS_MEMBERS_COUNT_PER_REQUEST = 1000
 
 URL_PATTERN_GROUPS_MEMBERS = (
     'https://api.vk.com/method/execute?code={code}&v={version}&access_token={token}'
@@ -51,8 +52,9 @@ class VKApiClient:
         self.update_period = UPDATE_DATA_PERIOD
         self.min_req_time = MIN_TIME_PER_REQUEST
         self.token_list = self.get_token_list()
-        self.max_users_per_req = MAX_GROUPS_MEMBERS_COUNT_PER_REQUEST
-        self.max_reqs_per_execute = MAX_REQUESTS_PER_EXECUTE_METHOD
+        self.count = MAX_GROUPS_MEMBERS_COUNT_PER_REQUEST
+        self.step = MAX_GROUPS_MEMBERS_COUNT_PER_REQUEST
+        self.max_requests = MAX_REQUESTS_PER_EXECUTE_METHOD
         # self.tokens_count=len(self.token_list)
         # self.queue = asyncio.Queue()
         # self.tasks = []
@@ -84,7 +86,7 @@ class VKApiClient:
         url = pattern.format(ids=ids, version=self.version, token=token)
         return url
 
-    def build_audience_url_list(self, group_id):
+    def build_audience_url_list(self, group_id, offset):
         url_list = []
         pattern = URL_PATTERN_GROUPS_MEMBERS
         comm = Community.objects.get(vk_id=group_id)
@@ -92,35 +94,15 @@ class VKApiClient:
         if not users:
             return url_list
         # groups = Community.objects.filter(deactivated=False).order_by('pk')
-        code = ''
-        req_min = 0
         for token in self.token_list:
-            code, req = self.build_audience_url_code(g_id=comm.vk_id, users=users, req_min_num=req_min)
+            uplimit = offset + self.step * (self.max_requests)
+            code = ','.join(
+                CODE % (str(group_id), offset_users, self.count) for offset_users in
+                range(offset, uplimit, self.step))
             code = 'return [' + code + '];'
             url_list.append(pattern.format(code=code, version=self.version, token=token))
-            if not req:
-                return url_list
-            req_min = req
-            users -= self.max_users_per_req * self.max_reqs_per_execute
-
-    def build_audience_url_code(self, g_id, users, req_min_num):
-        reqs_count = users % self.max_users_per_req + 1
-        users_count = MAX_GROUPS_MEMBERS_COUNT_PER_REQUEST
-        # if reqs_count <= self.max_reqs_per_execute:
-        #     code = ','.join(
-        #         CODE % (g_id, self.max_users_per_req * req_num, users_count) for req_num in
-        #         range(req_min_num, reqs_count))
-        #     req_min_next = 0
-        # else:
-        #     code = ','.join(
-        #         CODE.format(g_id, self.max_users_per_req * req_num, users_count) for req_num in
-        #         range(req_min_num, self.max_reqs_per_execute + 1))
-        #     req_min_next = reqs_count + 1
-        code = ','.join(
-            CODE % (str(g_id), self.max_users_per_req * req_num, users_count) for req_num in
-            range(req_min_num, reqs_count))
-        req_min_next = 0
-        return code, req_min_next
+            offset += self.step * self.max_requests
+        return url_list
 
     def parse_bdate(self, bdate):
         return bdate

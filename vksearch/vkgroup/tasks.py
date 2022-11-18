@@ -1,5 +1,8 @@
 from __future__ import absolute_import, unicode_literals
 
+import os
+from os.path import join
+
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import IntegrityError
 
@@ -196,21 +199,27 @@ def process_audience():
 
 
 def get_audience_data():
-    comms = Community.objects.filter(deactivated=False).order_by('vk_id')
-    for comm in comms:
-        vk_id=comm.vk_id
-        get_audience_data_for_group(vk_id)
-
+    # comms = Community.objects.filter(deactivated=False).order_by('vk_id')
+    # for comm in comms:
+    #     vk_id = comm.vk_id
+    #     get_audience_data_for_group(vk_id)
+    get_audience_data_for_group(78)
 
 def get_audience_data_for_group(g_id):
     vk_client = vkapiclient.VKApiClient()
-    url_list = vk_client.build_audience_url_list(g_id)
-    if not url_list:
-        return
-    res = group(task_load_users_for_community.s(url,g_id) for url in url_list).apply_async().get()
-    # for i in range(len(res)):
-    #     if res[i] == 'Task completed':
-    #         return
+    users_offset = 0
+    # count=0
+    while True:
+        url_list = vk_client.build_audience_url_list(g_id, users_offset)
+        if not url_list:
+            return
+        res = group(task_load_users_for_community.s(url, g_id) for url in url_list).apply_async().get()
+        for i in range(len(res)):
+            if res[i] == 'Task completed':
+                return
+        users_offset += len(vk_client.token_list) * vk_client.step * vk_client.max_requests
+
+
 # res = group(task_update_and_store_communities.s(url) for url in url_list).apply_async().get()
 
 @shared_task(
@@ -218,17 +227,48 @@ def get_audience_data_for_group(g_id):
     autoretry_for=(Exception,),
     max_retries=3,
 )
-def task_load_users_for_community(url,g_id):
-    vk_client = vkapiclient.VKApiClient()
+def task_load_users_for_community(url, g_id):
     r = requests.get(url, timeout=(vkapiclient.REQ_CONNECT_TIMEOUT, vkapiclient.REQ_READ_TIMEOUT))
     response = r.json().get('response')
-
+    if not response:
+        return 'Task completed'
         # logging.info(f'communities data from request number {count} received')
     for resp in response:
         if not resp:
             continue
-        data_list=resp.get('items')
+        data_list = resp.get('items')
+        # path = os.path.abspath(os.path.join(__file__, "."))
+        # with open(join(path,'example.txt'), 'w') as f:
+        #     f.write(data_list[:5])
+        # print(data_list[:5])
         for data in data_list:
-            args=data.get('bdate')
-            return args
-       
+            args = data.get('bdate')
+
+    time.sleep(5)
+    print(url)
+    return response
+    # return 'Task in progress'
+    # age_range = vk_client.parse_bdate(data.get('bdate'))
+    # country = vk_client.parse_country(data.get('country'))
+    # sex = vk_client.parse_sex(data.get('sex'))
+    # age_range = 1
+    # country = 2
+    # sex = 3
+    # params = {
+    #     'age_range': age_range,
+    #     'country': country,
+    #     'sex': sex
+    # }
+    # aud_profile, created = AudienceProfile.objects.get_or_create(
+    #     **params
+    # )
+    # comm_aud, created = Audience.objects.get_or_create(
+    #     community__vk_id=g_id,
+    #     profile=aud_profile
+    # )
+    # comm_aud.count += 1
+    # comm_aud.save()
+    # print(comm_aud)
+    # time.sleep(0.2)
+    # return 'Task completed'
+    # return (age_range, country,sex)
