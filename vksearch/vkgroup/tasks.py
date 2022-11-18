@@ -205,43 +205,30 @@ def get_audience_data():
 def get_audience_data_for_group(g_id):
     vk_client = vkapiclient.VKApiClient()
     url_list = vk_client.build_audience_url_list(g_id)
-    res = group([task_load_users_for_community.s(url, g_id) for url in url_list]).apply_async().get()
-    for i in range(len(res)):
-        if res[i] == 'Task completed':
-            return
-
+    if not url_list:
+        return
+    res = group(task_load_users_for_community.s(url,g_id) for url in url_list).apply_async().get()
+    # for i in range(len(res)):
+    #     if res[i] == 'Task completed':
+    #         return
+# res = group(task_update_and_store_communities.s(url) for url in url_list).apply_async().get()
 
 @shared_task(
     default_retry_delay=1,
     autoretry_for=(Exception,),
     max_retries=3,
 )
-def task_load_users_for_community(url, g_id):
+def task_load_users_for_community(url,g_id):
     vk_client = vkapiclient.VKApiClient()
     r = requests.get(url, timeout=(vkapiclient.REQ_CONNECT_TIMEOUT, vkapiclient.REQ_READ_TIMEOUT))
-    data_list = r.json().get('response').get('items')
-    if data_list:
+    response = r.json().get('response')
+
         # logging.info(f'communities data from request number {count} received')
+    for resp in response:
+        if not resp:
+            continue
+        data_list=resp.get('items')
         for data in data_list:
-            if not data:
-                continue
-            age_range = vk_client.parse_bdate(data.get('bdate'))
-            country = vk_client.parse_country(data.get('country'))
-            sex = vk_client.parse_sex(data.get('sex'))
-            params = {
-                'age_range': age_range,
-                'country': country,
-                'sex': sex
-            }
-            aud_profile, created = AudienceProfile.objects.get_or_create(
-                **params
-            )
-            comm_aud, created = Audience.objects.get_or_create(
-                community__vk_id=g_id,
-                profile=aud_profile
-            )
-            comm_aud.count += 1
-            comm_aud.save()
-            # print(comm_aud)
-        # time.sleep(0.2)
-    return 'Task completed'
+            args=data.get('bdate')
+            return args
+       

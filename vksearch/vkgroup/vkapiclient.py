@@ -33,8 +33,8 @@ URL_PATTERN_GROUPS_MEMBERS = (
     'https://api.vk.com/method/execute?code={code}&v={version}&access_token={token}'
 )
 
-CODE = ('API.groups.getMembers({"group_id":%d,"offset":%d,"count":%d,"sort":"id_asc",'
-        '"fields":"sex,bdate,country,city,last_seen"})')
+CODE = (
+    'API.groups.getMembers({"group_id":"%s","offset":%d,"count":%d,"sort":"id_asc","fields":"sex,bdate,country,city,last_seen"})')
 
 # countries
 MAX_COUNTRIES_COUNT = 237
@@ -85,18 +85,18 @@ class VKApiClient:
         return url
 
     def build_audience_url_list(self, group_id):
-        url_list=[]
+        url_list = []
         pattern = URL_PATTERN_GROUPS_MEMBERS
         comm = Community.objects.get(vk_id=group_id)
         users = comm.members
         if not users:
-            return None
+            return url_list
         # groups = Community.objects.filter(deactivated=False).order_by('pk')
         code = ''
         req_min = 0
         for token in self.token_list:
             code, req = self.build_audience_url_code(g_id=comm.vk_id, users=users, req_min_num=req_min)
-            code = '[return ' + code + ' ];'
+            code = 'return [' + code + '];'
             url_list.append(pattern.format(code=code, version=self.version, token=token))
             if not req:
                 return url_list
@@ -106,23 +106,27 @@ class VKApiClient:
     def build_audience_url_code(self, g_id, users, req_min_num):
         reqs_count = users % self.max_users_per_req + 1
         users_count = MAX_GROUPS_MEMBERS_COUNT_PER_REQUEST
-        if reqs_count <= self.max_reqs_per_execute:
-            code = ','.join(
-                CODE % (g_id,self.max_users_per_req * req_num,users_count) for req_num in
-                range(req_min_num, reqs_count))
-            req_min_next = 0
-        else:
-            code = ','.join(
-                CODE.format(g_id, self.max_users_per_req * req_num, users_count) for req_num in
-                range(req_min_num, self.max_reqs_per_execute + 1))
-            req_min_next = reqs_count + 1
+        # if reqs_count <= self.max_reqs_per_execute:
+        #     code = ','.join(
+        #         CODE % (g_id, self.max_users_per_req * req_num, users_count) for req_num in
+        #         range(req_min_num, reqs_count))
+        #     req_min_next = 0
+        # else:
+        #     code = ','.join(
+        #         CODE.format(g_id, self.max_users_per_req * req_num, users_count) for req_num in
+        #         range(req_min_num, self.max_reqs_per_execute + 1))
+        #     req_min_next = reqs_count + 1
+        code = ','.join(
+            CODE % (str(g_id), self.max_users_per_req * req_num, users_count) for req_num in
+            range(req_min_num, reqs_count))
+        req_min_next = 0
         return code, req_min_next
 
-    def parse_bdate(self,bdate):
+    def parse_bdate(self, bdate):
         return bdate
 
-    def parse_country(self,country):
+    def parse_country(self, country):
         return country
 
-    def parse_sex(self,sex):
+    def parse_sex(self, sex):
         return sex
