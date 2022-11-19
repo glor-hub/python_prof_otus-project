@@ -151,8 +151,11 @@ class VKApiClient:
         return AgeRange.AGE_65_OLDER
 
     def parse_country(self, data):
-        country_name = data.get('country').get('title')
-        if country_name is None:
+        country = data.get('country')
+        if country is None:
+            return Country.UNKNOWN_COUNTRY
+        country_name = country.get('title')
+        if not country_name:
             return Country.UNKNOWN_COUNTRY
         if country_name in self.countries_list:
             return country_name

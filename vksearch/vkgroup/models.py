@@ -24,6 +24,7 @@ class CommunityType(models.Model):
             )
         CommunityType.objects.bulk_create(type_instances)
 
+
 class Community(models.Model):
     AGE_UNKNOWN = 1
     AGE_16_OLDER = 2
@@ -109,7 +110,7 @@ class AgeRange(models.Model):
 
 
 class Country(models.Model):
-    UNKNOWN_COUNTRY=0
+    UNKNOWN_COUNTRY = 'Неизвестная страна'
     name = models.TextField(unique=True, null=False)
     objects = models.Manager()
 
@@ -138,7 +139,7 @@ class AudienceProfile(models.Model):
 
 class Audience(models.Model):
     community = models.ForeignKey(Community, on_delete=models.CASCADE, null=False, default=1)
-    profile = models.ForeignKey(AudienceProfile, on_delete=models.CASCADE, null=False,default=1)
+    profile = models.ForeignKey(AudienceProfile, on_delete=models.CASCADE, null=False, default=1)
     count = models.IntegerField(default=0)
     objects = models.Manager()
 

@@ -169,18 +169,10 @@ def task_load_and_store_countries():
                 c = Country.objects.get(id=id)
                 c.name = data.get('title')
                 c.save()
-        # time.sleep(0.2)
+    c = Country(id=238, name=Country.UNKNOWN_COUNTRY)
+    c.save()
+    # time.sleep(0.2)
     return 'Task completed'
-
-
-# def create_community_types():
-#     types = ['group', 'page', 'event']
-#     for type in types:
-#         comm_type, _ = CommunityType.objects.get_or_create(
-#             name=type,
-#         )
-#     return 'Task completed'
-
 
 def check_for_update_data_from_vk():
     try:
@@ -200,11 +192,13 @@ def process_audience():
 
 
 def get_audience_data():
-    # comms = Community.objects.filter(deactivated=False).exclude(Q(members__isnull=True) | Q(members__exact='')).order_by('vk_id')
-    # for comm in comms:
-    #     vk_id = comm.vk_id
-    #     get_audience_data_for_group(vk_id)
-    get_audience_data_for_group(78)
+    comms = Community.objects.filter(deactivated=False).exclude(Q(members__isnull=True) | Q(members__exact=0)).order_by(
+        'vk_id')
+    for comm in comms:
+        vk_id = comm.vk_id
+        if 2 <= vk_id <= 6:
+            get_audience_data_for_group(vk_id)
+    # get_audience_data_for_group(78)
 
 
 def get_audience_data_for_group(g_id):
@@ -241,8 +235,9 @@ def task_load_users_for_community(url, g_id):
         if not data_list:
             return 'Task completed'
         for data in data_list:
-            age=AgeRange.objects.get(range=vk_client.parse_bdate(data))
-            country=Country.objects.get(name=vk_client.parse_country(data))
+            country = vk_client.parse_country(data)
+            age = AgeRange.objects.get(range=vk_client.parse_bdate(data))
+            country = Country.objects.get(name=country)
             params = {
                 "age_range": age,
                 "sex": vk_client.parse_sex(data),
@@ -264,32 +259,8 @@ def task_load_users_for_community(url, g_id):
                 **params
             )
             audience.count = F('count') + 1
+            audience.save(update_fields=["count"])
 
     time.sleep(5)
-    # print(url)
-    # return response
     return 'Task in progress'
-    # age_range = vk_client.parse_bdate(data.get('bdate'))
-    # country = vk_client.parse_country(data.get('country'))
-    # sex = vk_client.parse_sex(data.get('sex'))
-    # age_range = 1
-    # country = 2
-    # sex = 3
-    # params = {
-    #     'age_range': age_range,
-    #     'country': country,
-    #     'sex': sex
-    # }
-    # aud_profile, created = AudienceProfile.objects.get_or_create(
-    #     **params
-    # )
-    # comm_aud, created = Audience.objects.get_or_create(
-    #     community__vk_id=g_id,
-    #     profile=aud_profile
-    # )
-    # comm_aud.count += 1
-    # comm_aud.save()
-    # print(comm_aud)
-    # time.sleep(0.2)
-    # return 'Task completed'
-    # return (age_range, country,sex)
+  
