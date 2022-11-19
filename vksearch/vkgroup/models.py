@@ -25,6 +25,84 @@ class CommunityType(models.Model):
         CommunityType.objects.bulk_create(type_instances)
 
 
+class CommunityProfileManager(models.Manager):
+    ORDERING_CHOICES = (
+        ('members', 'Members'),
+        ('countries', 'Countries'),
+        ('sex_perc', 'Sex %'),
+        ('audience_sum', 'Audience'),
+        ('audience_perc', 'Audience %')
+    )
+
+    def search(self,
+               countries=None,
+               age_ranges=None,
+               sexes=None,
+               min_sex_perc=None, max_sex_perc=None,
+               min_members=None, max_members=None,
+               min_audience=None, max_audience=None,
+               min_audience_perc=None, max_audience_perc=None,
+               ordering,
+               inverted):
+
+        if inverted:
+            ordering = '-' + ordering
+
+        profile_filter = {}
+        if age_ranges:
+            profile_filter['audience__profile__age_range__in'] = age_ranges
+        if countries:
+            profile_filter['audience__profile__country__in'] = countries
+        if sexes:
+            profile_filter['audience__profile__sex__in'] = sexes
+
+        members_filter = {}
+        if min_members is not None:
+            members_filter['members__gte'] = min_members
+        if max_members is not None:
+            members_filter['members__lte'] = max_members
+
+        audience_filter = {}
+        if min_audience is not None:
+            audience_filter['audience__gte'] = min_audience
+        if max_audience is not None:
+            audience_filter['audience__lte'] = max_audience
+
+        sex_perc_filter = {}
+        if min_sex_perc is not None:
+            sex_perc_filter['sex_perc__gte'] = min_sex_perc
+        if max_sex_perc is not None:
+            sex_perc_filter['sex_perc__lte'] = max_sex_perc
+
+        audience_perc_filter = {}
+        if min_audience_perc is not None:
+            audience_filter['audience_perc__gte'] = min_audience_perc
+        if max_audience_perc is not None:
+            audience_filter['audience_perc__lte'] = max_audience_perc
+
+        return self.filter(
+            deactivated=False,
+            **members_filter,
+            **profile_filter,
+        ).select_related(
+            'type'
+        ).annotate(
+            sex_sum=models.Sum('audience__count'),
+            sex_perc=100 * models.F('audience_sum') / models.F('members')
+        ).filter(
+            sex_sum__isnull=False,
+            **sex_perc_filter,
+        ).annotate(
+            audience_sum=models.Sum('audience__count'),
+            audience_perc=100 * models.F('audience_sum') / models.F('members')
+        ).filter(
+            audience_sum__isnull=False,
+            **audience_filter
+        ).order_by(
+            ordering
+        )
+
+
 class Community(models.Model):
     AGE_UNKNOWN = 1
     AGE_16_OLDER = 2
@@ -47,12 +125,8 @@ class Community(models.Model):
     is_updated = models.DateTimeField(auto_created=False, auto_now_add=True)
 
     objects = models.Manager()
+    profile_objects = CommunityProfileManager()
 
-    # def save(self, *args, **kwargs):
-    #     post_data = {'remote_api_file_field': self.file}
-    #     get_data_from_vk()
-    #     requests.post(REMOTE_API_URL, data=post_data)
-    #     super(Community).save()
     def __str__(self):
         return (f'community: {self.name} id: {self.vk_id}')
 
