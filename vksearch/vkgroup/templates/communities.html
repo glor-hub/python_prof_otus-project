@@ -24,13 +24,13 @@
     </div>
 </form>
 <div>
-<ul>
-        <li>{{name }}</li>
-        <li>{{members }}</li>
-        <li>{{audience_sum }}</li>
-        <li>{{audience_perc }}</li>
-    <li>{{sex }}</li>
-    <li>{{sex_perc }}</li>
+    <ul>
+        <li>name</li>
+        <li>members</li>
+        <li>audience_sum</li>
+        <li>audience_perc</li>
+        <li>sex</li>
+        <li>sex_perc</li>
     </ul>
     {% for c in communities %}
     <ul>
@@ -45,5 +45,7 @@
 
     {% endfor %}
 </div>
+
+{% include "paginator.html" %}
 
 {% endblock %}

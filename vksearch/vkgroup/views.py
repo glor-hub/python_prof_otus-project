@@ -1,6 +1,6 @@
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.shortcuts import render
 from django.views.decorators.http import require_GET
-# from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 
 from .models import Community
 from .forms import CommunitiesSearchForm
@@ -14,13 +14,14 @@ logger = logging.getLogger(__name__)
 COMMUNITIES_PER_PAGE = 30
 COMMUNITIES_LIMIT = 5 * COMMUNITIES_PER_PAGE
 
+
 @require_GET
-def communities_view(req):
+def communities_view(request):
     check_for_update_data_from_vk()
     context = {
         'title': 'Result',
     }
-    form = CommunitiesSearchForm(req.GET)
+    form = CommunitiesSearchForm(request.GET)
     if form.is_valid():
         communities = Community.profile_objects.select(
             form.cleaned_data['countries'],
@@ -33,16 +34,18 @@ def communities_view(req):
             form.cleaned_data['ordering'],
             form.cleaned_data['inverted']
         )[:COMMUNITIES_LIMIT]
-        # paginator = Paginator(communities, COMMUNITIES_PER_PAGE)
-        # page_num = req.GET.get('page', 1)
-        # try:
-        #     communities = paginator.page(page_num)
-        # except (PageNotAnInteger, EmptyPage):
-        #     raise Http404()
+        paginator = Paginator(communities, COMMUNITIES_PER_PAGE)
+        page_number = request.GET.get('page', 1)
+        page_obj = paginator.get_page(page_number)
+        context['page_obj'] = page_obj
+        try:
+            communities = page_obj.object_list
+        except PageNotAnInteger:
+            communities = paginator.get_page(1).object_list
+        except EmptyPage:
+            communities = paginator.get_page(paginator.num_pages).object_list
     else:
         communities = []
-    return render(req, 'communities.html', {
-        'communities': communities,
-        'form': form,
-        'context': context
-    })
+    context['communities'] = communities
+    context['form'] = form
+    return render(request, 'communities.html', context)
