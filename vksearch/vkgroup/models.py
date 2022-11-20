@@ -34,16 +34,16 @@ class CommunityProfileManager(models.Manager):
         ('audience_perc', 'Audience %')
     )
 
-    def search(self,
+    def select(self,
                countries=None,
                age_ranges=None,
                sexes=None,
-               min_sex_perc=None, max_sex_perc=None,
                min_members=None, max_members=None,
+               min_sex_perc=None, max_sex_perc=None,
                min_audience=None, max_audience=None,
                min_audience_perc=None, max_audience_perc=None,
-               ordering,
-               inverted):
+               ordering=None,
+               inverted=None):
 
         if inverted:
             ordering = '-' + ordering
@@ -87,17 +87,18 @@ class CommunityProfileManager(models.Manager):
         ).select_related(
             'type'
         ).annotate(
-            sex_sum=models.Sum('audience__count'),
+            audience_sum=models.Sum('audience__count'),
             sex_perc=100 * models.F('audience_sum') / models.F('members')
         ).filter(
-            sex_sum__isnull=False,
+            audience_sum__isnull=False,
             **sex_perc_filter,
         ).annotate(
             audience_sum=models.Sum('audience__count'),
             audience_perc=100 * models.F('audience_sum') / models.F('members')
         ).filter(
             audience_sum__isnull=False,
-            **audience_filter
+            **audience_filter,
+            **audience_perc_filter
         ).order_by(
             ordering
         )

@@ -1,65 +1,48 @@
 from django.shortcuts import render
+from django.views.decorators.http import require_GET
+# from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+
+from .models import Community
+from .forms import CommunitiesSearchForm
+
+from .tasks import check_for_update_data_from_vk
 
 import logging
 
-# from .tasks import test_create_task,
-
-# from .tasks import get_communities_data, get_countries_data, create_community_type
-from vksearch import celery_app
-from .tasks import check_for_update_data_from_vk
-
 logger = logging.getLogger(__name__)
 
-def test_search_profile(request):
-    # to do form
-    context = {
-        'title': 'Search Profile'
-    }
-    return render(request, 'profile.html', context)
+COMMUNITIES_PER_PAGE = 30
+COMMUNITIES_LIMIT = 5 * COMMUNITIES_PER_PAGE
 
-
-def test_search_result(request):
+@require_GET
+def communities_view(req):
     check_for_update_data_from_vk()
-    # create_community_type()
-    # get_communities_data()
-    # get_countries_data()
-
-
-    # get_user_profiles()
-    # task = test_create_task.delay()
-    # t_id = task.id
-    # task = celery_app.AsyncResult(t_id)
-    # t_status = task.status
     context = {
-        'title': 'Uraaa',
-        # 'task_id': t_id,
-        # 'task_status': t_status
+        'title': 'Result',
     }
-    return render(request, 'result.html', context)
-
-# def test_search_result(request):
-#
-#     # task = test_create_task.delay()
-#     # t_id = task.id
-#     # task = celery_app.AsyncResult(t_id)
-#     # t_status = task.status
-#     # context = {
-#     #     'title': 'Uraaa',
-#     #     'task_id': t_id,
-#     #     'task_status': t_status
-#     }
-#     return render(request, 'result.html', context)
-
-def search_profile(request):
-    # to do form
-    context = {
-        'title': 'Search Profile'
-    }
-    return render(request, 'profile.html', context)
-
-def search_result(request):
-    # to do
-    context = {
-        'title': 'Search Profile'
-    }
-    return render(request, 'profile.html', context)
+    form = CommunitiesSearchForm(req.GET)
+    if form.is_valid():
+        communities = Community.profile_objects.select(
+            form.cleaned_data['countries'],
+            form.cleaned_data['age_ranges'],
+            form.cleaned_data['sexes'],
+            form.cleaned_data['min_members'], form.cleaned_data['max_members'],
+            form.cleaned_data['min_sex_perc'], form.cleaned_data['max_sex_perc'],
+            form.cleaned_data['min_audience'], form.cleaned_data['max_audience'],
+            form.cleaned_data['min_audience_perc'], form.cleaned_data['max_audience_perc'],
+            form.cleaned_data['ordering'],
+            form.cleaned_data['inverted']
+        )[:COMMUNITIES_LIMIT]
+        # paginator = Paginator(communities, COMMUNITIES_PER_PAGE)
+        # page_num = req.GET.get('page', 1)
+        # try:
+        #     communities = paginator.page(page_num)
+        # except (PageNotAnInteger, EmptyPage):
+        #     raise Http404()
+    else:
+        communities = []
+    return render(req, 'communities.html', {
+        'communities': communities,
+        'form': form,
+        'context': context
+    })

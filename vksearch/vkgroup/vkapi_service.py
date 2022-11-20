@@ -12,13 +12,12 @@ from .models import Community, AgeRange, Country, AudienceProfile
 
 load_dotenv()
 
-VERSION = os.getenv('VK_API_VERSION')
-UPDATE_DATA_PERIOD = os.getenv('VK_UPDATE_DATA_PERIOD')
-MIN_TIME_PER_REQUEST = os.getenv('VK_MIN_TIME_PER_REQUEST')
-REQ_CONNECT_TIMEOUT = 1
-REQ_READ_TIMEOUT = 3
-# MAX_REQUESTS_PER_EXECUTE_METHOD = 25
-MAX_REQUESTS_PER_EXECUTE_METHOD = 1
+# VKAPI
+VK_VERSION = os.getenv('VK_API_VERSION')
+VK_UPDATE_DATA_PERIOD = os.getenv('VK_UPDATE_DATA_PERIOD')
+VK_MIN_TIME_PER_REQUEST = os.getenv('VK_MIN_TIME_PER_REQUEST')
+VK_REQ_CONNECT_TIMEOUT = 1
+VK_REQ_READ_TIMEOUT = 3
 
 # communities
 MAX_GROUPS_COUNT_PER_REQUEST = 500
@@ -31,6 +30,8 @@ URL_PATTERN_GROUPS_BY_ID = (
     'v={version}&access_token={token}')
 
 # audience
+# MAX_REQUESTS_PER_EXECUTE_METHOD = 25
+MAX_REQUESTS_PER_EXECUTE_METHOD = 1
 MAX_GROUPS_MEMBERS_COUNT_PER_REQUEST = 1000
 
 URL_PATTERN_GROUPS_MEMBERS = (
@@ -48,63 +49,60 @@ URL_PATTERN_COUNTRIES_BY_ID = (
     'v={version}&access_token={token}')
 
 
-class VKApiClient:
+def get_token_list():
+    token_list = []
+    path = os.path.abspath(os.path.join(__file__, "../../"))
+    with open(join(path, 'tokens.txt')) as f:
+        for line in f:
+            token_list.append(str(line).rstrip('\n'))
+    return token_list
 
+
+class VKApiCommunity:
     def __init__(self):
-        self.version = VERSION
-        self.update_period = UPDATE_DATA_PERIOD
-        self.min_req_time = MIN_TIME_PER_REQUEST
-        self.token_list = self.get_token_list()
-        self.count = MAX_GROUPS_MEMBERS_COUNT_PER_REQUEST
-        self.step = MAX_GROUPS_MEMBERS_COUNT_PER_REQUEST
-        self.max_requests = MAX_REQUESTS_PER_EXECUTE_METHOD
-        self.countries_list = self.get_countries_from_db()
-        # self.tokens_count=len(self.token_list)
-        # self.queue = asyncio.Queue()
-        # self.tasks = []
-        # self.semaphore = asyncio.Semaphore(value=TOKEN_NUM)
-
-    def get_token_list(self):
-        token_list = []
-        path = os.path.abspath(os.path.join(__file__, "../../"))
-        with open(join(path, 'tokens.txt')) as f:
-            for line in f:
-                token_list.append(str(line).rstrip('\n'))
-        self.token_list = token_list
-        return token_list
+        self.pattern = URL_PATTERN_GROUPS_BY_ID
+        self.offset = MAX_GROUPS_COUNT_PER_REQUEST
+        self.token_list = get_token_list()
 
     def build_community_url_list(self, min_id):
         url_list = []
-        pattern = URL_PATTERN_GROUPS_BY_ID
-        offset = MAX_GROUPS_COUNT_PER_REQUEST
         for token in self.token_list:
-            ids = ','.join(str(id) for id in range(int(min_id), int(min_id + offset)))
-            url_list.append(pattern.format(ids=ids, version=self.version, token=token))
-            min_id += offset
+            ids = ','.join(str(id) for id in range(int(min_id), int(min_id + self.offset)))
+            url_list.append(self.pattern.format(ids=ids, version=VK_VERSION, token=token))
+            min_id += self.offset
         return url_list, min_id
 
+
+class VKApiAudience:
+    def __init__(self):
+        self.aud_pattern = URL_PATTERN_GROUPS_MEMBERS
+        self.country_pattern = URL_PATTERN_COUNTRIES_BY_ID
+        self.count = MAX_GROUPS_MEMBERS_COUNT_PER_REQUEST
+        self.step = MAX_GROUPS_MEMBERS_COUNT_PER_REQUEST
+        self.max_requests = MAX_REQUESTS_PER_EXECUTE_METHOD
+        self.token_list = get_token_list()
+        self.countries_list = self.get_countries_from_db()
+
     def build_countries_url(self):
-        pattern = URL_PATTERN_COUNTRIES_BY_ID
+        self.country_pattern = URL_PATTERN_COUNTRIES_BY_ID
         ids = ','.join(str(id) for id in range(1, MAX_COUNTRIES_COUNT + 1))
         token = self.token_list[0]
-        url = pattern.format(ids=ids, version=self.version, token=token)
+        url = self.country_pattern.format(ids=ids, version=VK_VERSION, token=token)
         return url
 
     def build_audience_url_list(self, group_id, offset):
         url_list = []
-        pattern = URL_PATTERN_GROUPS_MEMBERS
         comm = Community.objects.get(vk_id=group_id)
         users = comm.members
         if not users:
             return url_list
-        # groups = Community.objects.filter(deactivated=False).order_by('pk')
         for token in self.token_list:
-            uplimit = offset + self.step * (self.max_requests)
+            uplimit = offset + self.step * self.max_requests
             code = ','.join(
                 CODE % (str(group_id), offset_users, self.count) for offset_users in
                 range(offset, uplimit, self.step))
             code = 'return [' + code + '];'
-            url_list.append(pattern.format(code=code, version=self.version, token=token))
+            url_list.append(self.aud_pattern.format(code=code, version=VK_VERSION, token=token))
             offset += self.step * self.max_requests
         return url_list
 

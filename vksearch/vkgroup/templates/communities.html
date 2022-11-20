@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block main_content %}
+
+
+<form method="get" action="{% url 'vkgroup:search' %}">
+    <div style="" id="">
+        <div><label>Members:</label><span class="">{{ form.min_members }} - {{ form.max_members }}</span></div>
+        <div><label>Audience:</label><span class="">{{ form.min_audience }} - {{ form.max_audience }}</span></div>
+        <div><label>Audience %:</label><span class="">{{ form.min_audience_perc }} - {{ form.max_audience_perc }}</span>
+        </div>
+        <br>
+        <div><label>Sex:</label>
+            {{ form.sex }}
+        </div>
+        <div><label>Sex %<span class="">{{ form.min_sex_perc }} - {{ form.max_sex_perc }}</span></div>
+    </div>
+    <div>
+        {{ form.age_ranges }}
+        {{ form.countries }}
+        <div>Order by: {{ form.ordering }}</div>
+        <div>Inverted: {{ form.inverted }}</div>
+        <input type="submit" value="Search">
+    </div>
+</form>
+<div>
+<ul>
+        <li>{{name }}</li>
+        <li>{{members }}</li>
+        <li>{{audience_sum }}</li>
+        <li>{{audience_perc }}</li>
+    <li>{{sex }}</li>
+    <li>{{sex_perc }}</li>
+    </ul>
+    {% for c in communities %}
+    <ul>
+        <li>{{ c.name }}</li>
+        <li>{{ c.members }}</li>
+        <li>{{ c.audience_sum }}</li>
+        <li>{{ c.audience_perc }}</li>
+    </ul>
+    {% empty %}
+
+    Nothing found
+
+    {% endfor %}
+</div>
+
+{% endblock %}

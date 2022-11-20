@@ -1,8 +1,5 @@
 from __future__ import absolute_import, unicode_literals
 
-import os
-from os.path import join
-
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import IntegrityError
 
@@ -12,41 +9,35 @@ import time
 import requests
 from django.db.models import Q, F
 
-from vksearch.celery import celery_app
 from celery import group, shared_task
 
 from datetime import datetime
 
-from . import vkapiclient
+from . import vkapi_service
 
 from .models import Community, CommunityType, Country, AudienceProfile, Audience, AgeRange
 
+from .vkapi_service import VKApiCommunity, VKApiAudience
 
-# def get_communities_data(update_flag=False):
-#     min_id = 1
-#     vk_client = vkapiclient.VKApiClient()
-#     create_community_types()
-#     while True:
-#         url_list, min_id_next = vk_client.build_community_url_list(min_id)
-#         # print(url_list)
-#         # time.sleep(0)
-#         if update_flag:
-#             res = group(task_update_and_store_communities.s(url) for url in url_list)().get()
-#         else:
-#             res = group(task_load_and_store_communities.s(url) for url in url_list)().get()
-#         for i in range(len(res)):
-#             if res[i] == 'Task completed':
-#                 return
-#         min_id = min_id_next
 
-def get_communities_data(update_flag=False):
+def check_for_update_data_from_vk():
+    vkcommunity = VKApiCommunity()
+    try:
+        comm = Community.objects.get(vk_id=1)
+        if (datetime.now() - comm.is_updated).total_seconds() > float(vkapi_service.VK_UPDATE_DATA_PERIOD):
+            get_communities_data(vkcommunity, update_flag=True)
+            get_audience_data()
+    except ObjectDoesNotExist:
+        get_communities_data(vkcommunity,update_flag=False)
+        get_countries_data()
+        AgeRange.create_table_with_data()
+        get_audience_data()
+
+def get_communities_data(vkcommunity, update_flag=False):
     min_id = 1
-    vk_client = vkapiclient.VKApiClient()
     CommunityType.create_table_with_data()
     while True:
-        url_list, min_id_next = vk_client.build_community_url_list(min_id)
-        # print(url_list)
-        # time.sleep(0)
+        url_list, min_id_next = vkcommunity.build_community_url_list(min_id)
         if update_flag:
             res = group(task_update_and_store_communities.s(url) for url in url_list).apply_async().get()
         else:
@@ -63,16 +54,12 @@ def get_communities_data(update_flag=False):
     max_retries=3,
 )
 def task_load_and_store_communities(url):
-    r = requests.get(url, timeout=(vkapiclient.REQ_CONNECT_TIMEOUT, vkapiclient.REQ_READ_TIMEOUT))
+    r = requests.get(url, timeout=(vkapi_service.VK_REQ_CONNECT_TIMEOUT, vkapi_service.VK_REQ_READ_TIMEOUT))
     data_list = r.json().get('response')
-
     if data_list:
-        # logging.info(f'communities data from request number {count} received')
-        # print(data_list)
-        #
         for data in data_list:
             vk_id = data.get('id')
-            if vk_id > vkapiclient.MAX_GROUPS_COUNT:
+            if vk_id > vkapi_service.MAX_GROUPS_COUNT:
                 return 'Task completed'
             dtype = data.get('type')
             c_type, _ = CommunityType.objects.get_or_create(
@@ -109,15 +96,12 @@ def task_load_and_store_communities(url):
     max_retries=3,
 )
 def task_update_and_store_communities(url):
-    r = requests.get(url, timeout=(vkapiclient.REQ_CONNECT_TIMEOUT, vkapiclient.REQ_READ_TIMEOUT))
+    r = requests.get(url, timeout=(vkapi_service.VK_REQ_CONNECT_TIMEOUT, vkapi_service.VK_REQ_READ_TIMEOUT))
     data_list = r.json().get('response')
     if data_list:
-        # logging.info(f'communities data from request number {count} received')
-        # print(data_list)
-        #
         for data in data_list:
             vk_id = data.get('id')
-            if vk_id > vkapiclient.MAX_GROUPS_COUNT:
+            if vk_id > vkapi_service.MAX_GROUPS_COUNT:
                 return 'Task completed'
             dtype = data.get('type')
             c_type, _ = CommunityType.objects.get_or_create(
@@ -149,9 +133,9 @@ def get_countries_data():
     max_retries=3,
 )
 def task_load_and_store_countries():
-    vk_client = vkapiclient.VKApiClient()
-    url = vk_client.build_countries_url()
-    r = requests.get(url, timeout=(vkapiclient.REQ_CONNECT_TIMEOUT, vkapiclient.REQ_READ_TIMEOUT))
+    vkaudience=VKApiAudience()
+    url = vkaudience.build_countries_url()
+    r = requests.get(url, timeout=(vkapi_service.VK_REQ_CONNECT_TIMEOUT, vkapi_service.VK_REQ_READ_TIMEOUT))
     data_list = r.json().get('response')
     if data_list:
         # logging.info(f'communities data from request number {count} received')
@@ -174,22 +158,6 @@ def task_load_and_store_countries():
     # time.sleep(0.2)
     return 'Task completed'
 
-def check_for_update_data_from_vk():
-    try:
-        comm = Community.objects.get(vk_id=1)
-        if (datetime.now() - comm.is_updated).total_seconds() > float(vkapiclient.UPDATE_DATA_PERIOD):
-            get_communities_data(update_flag=True)
-    except ObjectDoesNotExist:
-        get_communities_data(update_flag=False)
-        get_countries_data()
-        AgeRange.create_table_with_data()
-        # create_audience_profile()
-    process_audience()
-
-
-def process_audience():
-    get_audience_data()
-
 
 def get_audience_data():
     comms = Community.objects.filter(deactivated=False).exclude(Q(members__isnull=True) | Q(members__exact=0)).order_by(
@@ -202,18 +170,17 @@ def get_audience_data():
 
 
 def get_audience_data_for_group(g_id):
-    vk_client = vkapiclient.VKApiClient()
+    vkaudience = VKApiAudience()
     users_offset = 0
-    # count=0
     while True:
-        url_list = vk_client.build_audience_url_list(g_id, users_offset)
+        url_list = vkaudience.build_audience_url_list(g_id, users_offset)
         if not url_list:
             return
         res = group(task_load_users_for_community.s(url, g_id) for url in url_list).apply_async().get()
         for i in range(len(res)):
             if res[i] == 'Task completed':
                 return
-        users_offset += len(vk_client.token_list) * vk_client.step * vk_client.max_requests
+        users_offset += len(vkaudience.token_list) * vkaudience.step * vkaudience.max_requests
 
 
 # res = group(task_update_and_store_communities.s(url) for url in url_list).apply_async().get()
@@ -224,10 +191,9 @@ def get_audience_data_for_group(g_id):
     max_retries=3,
 )
 def task_load_users_for_community(url, g_id):
-    vk_client = vkapiclient.VKApiClient()
-    r = requests.get(url, timeout=(vkapiclient.REQ_CONNECT_TIMEOUT, vkapiclient.REQ_READ_TIMEOUT))
+    vkaudience = VKApiAudience()
+    r = requests.get(url, timeout=(vkapi_service.VK_REQ_CONNECT_TIMEOUT, vkapi_service.VK_REQ_READ_TIMEOUT))
     response = r.json().get('response')
-    # logging.info(f'communities data from request number {count} received')
     for resp in response:
         if not resp:
             continue
@@ -235,12 +201,12 @@ def task_load_users_for_community(url, g_id):
         if not data_list:
             return 'Task completed'
         for data in data_list:
-            country = vk_client.parse_country(data)
-            age = AgeRange.objects.get(range=vk_client.parse_bdate(data))
+            country = vkaudience.parse_country(data)
+            age = AgeRange.objects.get(range=vkaudience.parse_bdate(data))
             country = Country.objects.get(name=country)
             params = {
                 "age_range": age,
-                "sex": vk_client.parse_sex(data),
+                "sex": vkaudience.parse_sex(data),
                 "country": country
             }
             try:
@@ -261,6 +227,5 @@ def task_load_users_for_community(url, g_id):
             audience.count = F('count') + 1
             audience.save(update_fields=["count"])
 
-    time.sleep(5)
+    time.sleep(0.5)
     return 'Task in progress'
-  
