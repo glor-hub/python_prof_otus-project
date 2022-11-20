@@ -21,23 +21,23 @@ from .vkapi_service import VKApiCommunity, VKApiAudience
 
 
 def check_for_update_data_from_vk():
-    vkcommunity = VKApiCommunity()
+    vk_community = VKApiCommunity()
     try:
         comm = Community.objects.get(vk_id=1)
         if (datetime.now() - comm.is_updated).total_seconds() > float(vkapi_service.VK_UPDATE_DATA_PERIOD):
-            get_communities_data(vkcommunity, update_flag=True)
+            get_communities_data(vk_community, update_flag=True)
             get_audience_data()
     except ObjectDoesNotExist:
-        get_communities_data(vkcommunity,update_flag=False)
+        get_communities_data(vk_community,update_flag=False)
         get_countries_data()
         AgeRange.create_table_with_data()
         get_audience_data()
 
-def get_communities_data(vkcommunity, update_flag=False):
+def get_communities_data(vk_community, update_flag=False):
     min_id = 1
     CommunityType.create_table_with_data()
     while True:
-        url_list, min_id_next = vkcommunity.build_community_url_list(min_id)
+        url_list, min_id_next = vk_community.build_community_url_list(min_id)
         if update_flag:
             res = group(task_update_and_store_communities.s(url) for url in url_list).apply_async().get()
         else:
@@ -133,8 +133,8 @@ def get_countries_data():
     max_retries=3,
 )
 def task_load_and_store_countries():
-    vkaudience=VKApiAudience()
-    url = vkaudience.build_countries_url()
+    vk_audience=VKApiAudience()
+    url = vk_audience.build_countries_url()
     r = requests.get(url, timeout=(vkapi_service.VK_REQ_CONNECT_TIMEOUT, vkapi_service.VK_REQ_READ_TIMEOUT))
     data_list = r.json().get('response')
     if data_list:
@@ -164,23 +164,21 @@ def get_audience_data():
         'vk_id')
     for comm in comms:
         vk_id = comm.vk_id
-        if 2 <= vk_id <= 6:
-            get_audience_data_for_group(vk_id)
-    # get_audience_data_for_group(78)
+        get_audience_data_for_group(vk_id)
 
 
 def get_audience_data_for_group(g_id):
-    vkaudience = VKApiAudience()
+    vk_audience = VKApiAudience()
     users_offset = 0
     while True:
-        url_list = vkaudience.build_audience_url_list(g_id, users_offset)
+        url_list = vk_audience.build_audience_url_list(g_id, users_offset)
         if not url_list:
             return
         res = group(task_load_users_for_community.s(url, g_id) for url in url_list).apply_async().get()
         for i in range(len(res)):
             if res[i] == 'Task completed':
                 return
-        users_offset += len(vkaudience.token_list) * vkaudience.step * vkaudience.max_requests
+        users_offset += len(vk_audience.token_list) * vk_audience.step * vk_audience.max_requests
 
 
 # res = group(task_update_and_store_communities.s(url) for url in url_list).apply_async().get()
@@ -191,22 +189,25 @@ def get_audience_data_for_group(g_id):
     max_retries=3,
 )
 def task_load_users_for_community(url, g_id):
-    vkaudience = VKApiAudience()
-    r = requests.get(url, timeout=(vkapi_service.VK_REQ_CONNECT_TIMEOUT, vkapi_service.VK_REQ_READ_TIMEOUT))
-    response = r.json().get('response')
+    vk_audience = VKApiAudience()
+    try:
+        r = requests.get(url, timeout=(vkapi_service.VK_REQ_CONNECT_TIMEOUT, vkapi_service.VK_REQ_READ_TIMEOUT))
+        response = r.json().get('response')
+    except Exception as e:
+        raise e
+    if not response:
+        return 'Task completed'
     for resp in response:
-        if not resp:
-            continue
         data_list = resp.get('items')
         if not data_list:
             return 'Task completed'
         for data in data_list:
-            country = vkaudience.parse_country(data)
-            age = AgeRange.objects.get(range=vkaudience.parse_bdate(data))
+            country = vk_audience.parse_country(data)
+            age = AgeRange.objects.get(range=vk_audience.parse_bdate(data))
             country = Country.objects.get(name=country)
             params = {
                 "age_range": age,
-                "sex": vkaudience.parse_sex(data),
+                "sex": vk_audience.parse_sex(data),
                 "country": country
             }
             try:
@@ -227,5 +228,5 @@ def task_load_users_for_community(url, g_id):
             audience.count = F('count') + 1
             audience.save(update_fields=["count"])
 
-    time.sleep(0.5)
+    # time.sleep(0.5)
     return 'Task in progress'
