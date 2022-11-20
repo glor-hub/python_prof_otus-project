@@ -23,4 +23,23 @@ class CommunitiesSearchForm(forms.Form):
     ordering = forms.ChoiceField(choices=Community.profile_objects.ORDERING_CHOICES)
     inverted = forms.BooleanField(required=False)
 
+    def clean_age_ranges(self):
+        return list(self.cleaned_data['age_ranges'])
 
+    def clean_countries(self):
+        return list(self.cleaned_data['countries'])
+
+    def clean(self):
+        super().clean()
+        self.validate('min_members', 'max_members')
+        self.validate('min_audience', 'max_audience')
+        self.validate('min_audience_perc', 'max_audience_perc')
+        return self.cleaned_data
+
+    def validate(self, min_field_name, max_field_name):
+        min_value = self.cleaned_data.get(min_field_name)
+        max_value = self.cleaned_data.get(max_field_name)
+        if min_value is not None and max_value is not None:
+            if min_value > max_value:
+                raise forms.ValidationError('"{0}" and "{1}" must be validated'.format(
+                    min_field_name, max_field_name))
