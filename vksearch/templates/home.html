@@ -1,35 +1,14 @@
 {% extends 'base.html' %}
 
 
-
-
-
-
-<!--<div class="container mt-3 pt-2 border">-->
-<!--    <div class="row">-->
-<!--        <div class="col-sm-12 p-3">-->
-<!--            <div class="text-center">-->
-<!--                <h5>-->
-<!--                    Welcome to our main page!-->
-<!--                </h5>-->
-<!--                <img src="/static/img/index.jpg" class="center-block mx-auto d-block " alt="...">-->
-<!--            </div>-->
-
-<!--        </div>-->
-<!--    </div>-->
-<!--</div>-->
 {% block main_content %}
 <h5>
-    Welcome to our site!
-    Здесь вы можете найти целевую аудиторию!
-
-
+    <br>
+   The efficiency and success of advertising largely depend on target audience settings in VKontakte.
+    <br>
+    <br>
+    Our site provides some options, using which you can select the necessary target audience among millions of users.
 </h5>
-{% if user.is_anonymous %}
-<li><a href="{% url "siteauth:signup" %}">Search your audience!</a></li>
-{% else %}
-<li><a href="{% url "vkgroup:search" %}">Search your audience</a></li>
-{% endif %}
 
 {% endblock %}
 

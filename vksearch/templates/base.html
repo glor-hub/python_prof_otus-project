@@ -19,9 +19,9 @@
 
 <body>
 <nav class="navbar navbar-expand-lg navbar navbar-light"
-     style="background-image: linear-gradient(-45deg, #c2a3f8,#e3d7fa)">
+     style="background-image: linear-gradient(-45deg, #7dc3f8,#4778fa)">
     <div class="container-fluid">
-        <a class="navbar-brand" href="{% url "home" %}">Audience search</a>
+        <a class="navbar-brand" href="{% url "home" %}">Find your target audience!</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
                 aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
@@ -41,7 +41,7 @@
                         <li><a class="dropdown-item" href="{% url 'siteauth:login' %}">Login</a></li>
                         {% else %}
                         <li><a class="dropdown-item" href="{% url 'siteauth:logout' %}">Logout</a></li>
-                        <li><a href="{% url "siteauth:settings" user.pk %}">{{user.username}}</a></li>
+                        <li><a class="dropdown-item" href="{% url 'siteauth:settings' user.pk %}">{{user.username}}</a></li>
                         {% endif %}
                         <li><a class="dropdown-item" href="{% url 'siteauth:signup' %}">Signup</a></li>
                     </ul>

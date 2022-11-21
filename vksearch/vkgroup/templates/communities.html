@@ -42,6 +42,8 @@
     {% endfor %}
 </div>
 
+{% if communities %}
 {% include "paginator.html" with page_obj=communities%}
+{% endif %}}
 
 {% endblock %}
