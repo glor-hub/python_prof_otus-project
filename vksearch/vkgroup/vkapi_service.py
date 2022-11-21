@@ -22,7 +22,7 @@ VK_REQ_READ_TIMEOUT = 3
 # communities
 MAX_GROUPS_COUNT_PER_REQUEST = 500
 # MAX_GROUPS_COUNT = 100000
-MAX_GROUPS_COUNT = 1500
+MAX_GROUPS_COUNT = 50000
 
 URL_PATTERN_GROUPS_BY_ID = (
     'https://api.vk.com/method/groups.getById?group_ids={ids}&'

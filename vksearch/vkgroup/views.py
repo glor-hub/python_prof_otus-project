@@ -35,17 +35,17 @@ def communities_view(request):
             form.cleaned_data['inverted']
         )[:COMMUNITIES_LIMIT]
         paginator = Paginator(communities, COMMUNITIES_PER_PAGE)
-        page_number = request.GET.get('page', 1)
+        page_number = request.GET.get('page')
         page_obj = paginator.get_page(page_number)
-        context['page_obj'] = page_obj
         try:
-            communities = page_obj.object_list
+            communities= page_obj
         except PageNotAnInteger:
-            communities = paginator.get_page(1).object_list
+            communities = paginator.get_page(1)
         except EmptyPage:
-            communities = paginator.get_page(paginator.num_pages).object_list
+            communities = paginator.get_page(paginator.num_pages)
     else:
         communities = []
-    context['communities'] = communities
     context['form'] = form
+    context['communities'] = communities
+
     return render(request, 'communities.html', context)

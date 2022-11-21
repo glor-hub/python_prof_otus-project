@@ -184,20 +184,21 @@ def get_audience_data_for_group(g_id):
 # res = group(task_update_and_store_communities.s(url) for url in url_list).apply_async().get()
 
 @shared_task(
-    default_retry_delay=1,
+    default_retry_delay=5,
     autoretry_for=(Exception,),
     max_retries=3,
 )
 def task_load_users_for_community(url, g_id):
     vk_audience = VKApiAudience()
-    try:
-        r = requests.get(url, timeout=(vkapi_service.VK_REQ_CONNECT_TIMEOUT, vkapi_service.VK_REQ_READ_TIMEOUT))
-        response = r.json().get('response')
-    except Exception as e:
-        raise e
-    if not response:
+    r = requests.get(url, timeout=(vkapi_service.VK_REQ_CONNECT_TIMEOUT, vkapi_service.VK_REQ_READ_TIMEOUT))
+    if not r:
         return 'Task completed'
+    # resp = r.json()
+
+    response = r.json().get('response')
     for resp in response:
+        if not resp:
+            return 'Task completed'
         data_list = resp.get('items')
         if not data_list:
             return 'Task completed'

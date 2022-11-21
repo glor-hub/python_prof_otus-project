@@ -39,13 +39,9 @@
         <li>{{ c.audience_sum }}</li>
         <li>{{ c.audience_perc }}</li>
     </ul>
-    {% empty %}
-
-    Nothing found
-
     {% endfor %}
 </div>
 
-{% include "paginator.html" %}
+{% include "paginator.html" with page_obj=communities%}
 
 {% endblock %}
