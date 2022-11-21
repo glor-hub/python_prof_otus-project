@@ -11,14 +11,13 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-COMMUNITIES_PER_PAGE = 30
-COMMUNITIES_LIMIT = 5 * COMMUNITIES_PER_PAGE
+COMMUNITIES_PER_PAGE = 20
+COMMUNITIES_LIMIT = 10 * COMMUNITIES_PER_PAGE
 
 
 @require_GET
 def communities_view(request):
     check_for_update_data_from_vk()
-    # get_audience_data()
     context = {
         'title': 'Result',
     }
@@ -37,13 +36,14 @@ def communities_view(request):
         )[:COMMUNITIES_LIMIT]
         paginator = Paginator(communities, COMMUNITIES_PER_PAGE)
         page_number = request.GET.get('page')
-        page_obj = paginator.get_page(page_number)
-        try:
-            communities= page_obj
-        except PageNotAnInteger:
-            communities = paginator.get_page(1)
-        except EmptyPage:
-            communities = paginator.get_page(paginator.num_pages)
+        communities = paginator.get_page(page_number)
+        # page_obj = paginator.get_page(page_number)
+        # try:
+        #     communities= page_obj
+        # except PageNotAnInteger:
+        #     communities = paginator.get_page(1)
+        # except EmptyPage:
+        #     communities = paginator.get_page(paginator.num_pages)
     else:
         communities = []
     context['form'] = form

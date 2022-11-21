@@ -23,27 +23,46 @@
         <input type="submit" value="Search">
     </div>
 </form>
-<div>
-    <ul>
-        <li>name</li>
-        <li>members</li>
-        <li>audience_sum</li>
-        <li>audience_perc</li>
-        <li>sex</li>
-        <li>sex_perc</li>
-    </ul>
-    {% for c in communities %}
-    <ul>
-        <li>{{ c.name }}</li>
-        <li>{{ c.members }}</li>
-        <li>{{ c.audience_sum }}</li>
-        <li>{{ c.audience_perc }}</li>
-    </ul>
-    {% endfor %}
-</div>
 
 {% if communities %}
-{% include "paginator.html" with page_obj=communities%}
-{% endif %}}
+        <div class="container mt-3 pt-2 border">
+            <div class="row">
+                    <div class="col-sm-12 p-3">
+                        <h5>
+                            Target Audiences
+                        </h5>
+                        <table class="table table-bordered ">
+                            <thead class="table-success">
+                            <tr>
+                                <th scope="row" class="text-center">Id</th>
+                                <th scope="row" class="text-center">Name</th>
+                                <th scope="row" class="text-center">Members</th>
+                                <th scope="row" class="text-center">Sex, %</th>
+                                <th scope="row" class="text-center">Audience</th>
+                                <th scope="row" class="text-center">Audience, %</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for c in communities %}
+                                    <tr>
+                                        <td class="text-center align-middle">{{c.pk}}</td>
+                                        <td class="text-center align-left">{{c.name}}</td>
+                                        <td class="text-center align-middle">{{c.members}}</td>
+                                        <td class="text-center align-middle">{{c.sex_perc}}</td>
+                                        <td class="text-center align-middle">{{c.audience_sum }}</td>
+                                        <td class="text-center align-middle">{{c.audience_perc}}</td>
+                                    </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+            </div>
+        </div>
+    {% else %}
+        <br> <h5>No Audiences.</h5>
+    {% endif %}
+{% if communities %}
+{% include "paginator.html" with page_obj=communities %}
+{% endif %}
 
 {% endblock %}
