@@ -182,17 +182,10 @@ STATIC_ROOT = os.path.join(PROJECT_ROOT, 'static')
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static"),
 ]
-#
-# MEDIA_URL = '/media/'
-#
-# MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
-# INTERNAL_IPS = [
-#     "127.0.0.1",
-# ]
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
@@ -202,6 +195,13 @@ LOGIN_URL = 'siteauth/login/'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 
+VK_API_VERSION=5.131
+VK_UPDATE_DATA_PERIOD=172800
+VK_MIN_TIME_PER_REQUEST=0.5
+VK_REQ_CONNECT_TIMEOUT = 1
+VK_REQ_READ_TIMEOUT = 3
+
+TOKENS_DIR=os.path.abspath(os.path.join(__file__, "../../"))
 
 CELERY_BROKER_URL = os.getenv('CELERY_BROKER_URL')
 CELERY_RESULT_BACKEND = os.getenv('CELERY_RESULT_BACKEND')

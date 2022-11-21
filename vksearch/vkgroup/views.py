@@ -5,7 +5,7 @@ from django.views.decorators.http import require_GET
 from .models import Community
 from .forms import CommunitiesSearchForm
 
-from .tasks import check_for_update_data_from_vk
+from .tasks import check_for_update_data_from_vk, get_audience_data
 
 import logging
 
@@ -18,6 +18,7 @@ COMMUNITIES_LIMIT = 5 * COMMUNITIES_PER_PAGE
 @require_GET
 def communities_view(request):
     check_for_update_data_from_vk()
+    # get_audience_data()
     context = {
         'title': 'Result',
     }

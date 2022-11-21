@@ -5,4 +5,3 @@ def index(request):
         'title': 'Home page'
     }
     return render(request, 'home.html', context)
-

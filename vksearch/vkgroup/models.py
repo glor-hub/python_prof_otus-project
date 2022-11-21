@@ -123,7 +123,7 @@ class Community(models.Model):
     site = models.TextField(null=True)
     members = models.PositiveIntegerField(blank=True, null=True)
     status = models.TextField(null=True)
-    is_updated = models.DateTimeField(auto_created=False, auto_now_add=True)
+    update_at = models.DateTimeField(auto_created=False, auto_now_add=True)
 
     objects = models.Manager()
     profile_objects = CommunityProfileManager()
@@ -189,7 +189,6 @@ class Country(models.Model):
     name = models.TextField(unique=True, null=False)
     objects = models.Manager()
 
-    # method: database.getCountriesById
     def __str__(self):
         return self.name
 
