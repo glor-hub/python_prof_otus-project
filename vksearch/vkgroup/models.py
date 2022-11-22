@@ -28,7 +28,6 @@ class CommunityType(models.Model):
 class CommunityProfileManager(models.Manager):
     ORDERING_CHOICES = (
         ('members', 'Members'),
-        ('countries', 'Countries'),
         ('sex_perc', 'Sex %'),
         ('audience_sum', 'Audience'),
         ('audience_perc', 'Audience %')

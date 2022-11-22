@@ -34,6 +34,7 @@ class CommunitiesSearchForm(forms.Form):
         self.validate('min_members', 'max_members')
         self.validate('min_audience', 'max_audience')
         self.validate('min_audience_perc', 'max_audience_perc')
+        self.validate('min_sex_perc', 'max_sex_perc')
         return self.cleaned_data
 
     def validate(self, min_field_name, max_field_name):

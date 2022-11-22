@@ -37,13 +37,6 @@ def communities_view(request):
         paginator = Paginator(communities, COMMUNITIES_PER_PAGE)
         page_number = request.GET.get('page')
         communities = paginator.get_page(page_number)
-        # page_obj = paginator.get_page(page_number)
-        # try:
-        #     communities= page_obj
-        # except PageNotAnInteger:
-        #     communities = paginator.get_page(1)
-        # except EmptyPage:
-        #     communities = paginator.get_page(paginator.num_pages)
     else:
         communities = []
     context['form'] = form

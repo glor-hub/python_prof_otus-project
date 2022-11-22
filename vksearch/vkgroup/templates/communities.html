@@ -3,66 +3,71 @@
 {% block main_content %}
 
 
-<form method="get" action="{% url 'vkgroup:search' %}">
-    <div style="" id="">
-        <div><label>Members:</label><span class="">{{ form.min_members }} - {{ form.max_members }}</span></div>
-        <div><label>Audience:</label><span class="">{{ form.min_audience }} - {{ form.max_audience }}</span></div>
-        <div><label>Audience %:</label><span class="">{{ form.min_audience_perc }} - {{ form.max_audience_perc }}</span>
-        </div>
-        <br>
-        <div><label>Sex:</label>
-            {{ form.sex }}
-        </div>
-        <div><label>Sex %<span class="">{{ form.min_sex_perc }} - {{ form.max_sex_perc }}</span></div>
-    </div>
-    <div>
-        {{ form.age_ranges }}
-        {{ form.countries }}
-        <div>Order by: {{ form.ordering }}</div>
-        <div>Inverted: {{ form.inverted }}</div>
-        <input type="submit" value="Search">
-    </div>
-</form>
+<div class="container-fluid mt-3">
+    <div class="row">
+        <div class="col p-2">
+            {% if user.is_anonymous %}
+            <h6>Login To Account</h6>
+            <h5><a href="{% url 'siteauth:login' %}">
+                <button class="btn btn-success">Login</button>
+            </a></h5>
+            <h5>New At site? Register Now!</h5>
 
-{% if communities %}
-        <div class="container mt-3 pt-2 border">
-            <div class="row">
-                    <div class="col-sm-12 p-3">
-                        <h5>
-                            Target Audiences
-                        </h5>
-                        <table class="table table-bordered ">
-                            <thead class="table-success">
-                            <tr>
-                                <th scope="row" class="text-center">Id</th>
-                                <th scope="row" class="text-center">Name</th>
-                                <th scope="row" class="text-center">Members</th>
-                                <th scope="row" class="text-center">Sex, %</th>
-                                <th scope="row" class="text-center">Audience</th>
-                                <th scope="row" class="text-center">Audience, %</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {% for c in communities %}
-                                    <tr>
-                                        <td class="text-center align-middle">{{c.pk}}</td>
-                                        <td class="text-center align-left">{{c.name}}</td>
-                                        <td class="text-center align-middle">{{c.members}}</td>
-                                        <td class="text-center align-middle">{{c.sex_perc}}</td>
-                                        <td class="text-center align-middle">{{c.audience_sum }}</td>
-                                        <td class="text-center align-middle">{{c.audience_perc}}</td>
-                                    </tr>
-                            {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-            </div>
+            <h5><a href="{% url 'siteauth:signup' %}">
+                <button class="btn btn-success">Signup</button>
+                {% else %}
+                <h5>Audience Targeting Options</h5>
+                <br>
+                <form method="get" action="{% url 'vkgroup:search' %}">
+                    {{ form.as_p }}
+                    <p><input type="submit" class="table-success" value="Search"></p>
+                    {% csrf_token %}
+                </form>
+                {% endif %}
+
         </div>
-    {% else %}
-        <br> <h5>No Audiences.</h5>
-    {% endif %}
-{% if communities %}
-{% include "paginator.html" with page_obj=communities %}
-{% endif %}
+
+
+        <div class="col p-8">
+            <h5>
+                Target Audiences
+            </h5>
+             {% if communities %}
+                {% include "paginator.html" with page_obj=communities %}
+                 {% endif %}
+            <table class="table table-bordered ">
+                <thead class="table-success">
+                <tr>
+                    <th scope="row" class="text-center">Id</th>
+                    <th scope="row" class="text-center">Name</th>
+                    <th scope="row" class="text-center">Members</th>
+                    <th scope="row" class="text-center">Sex, %</th>
+                    <th scope="row" class="text-center">Audience</th>
+                    <th scope="row" class="text-center">Audience, %</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% if communities %}
+                {% for c in communities %}
+                <tr>
+                    <td class="text-center align-middle">{{c.pk}}</td>
+                    <td class="text-center align-left">{{c.name}}</td>
+                    <td class="text-center align-middle">{{c.members}}</td>
+                    <td class="text-center align-middle">{{c.sex_perc}}</td>
+                    <td class="text-center align-middle">{{c.audience_sum }}</td>
+                    <td class="text-center align-middle">{{c.audience_perc}}</td>
+                    {% endfor %}
+                    {% else %}
+                    <td class="text-center align-middle"></td>
+                    <td class="text-center align-left">No Audiences </td>
+                </tr>
+
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
 
 {% endblock %}
