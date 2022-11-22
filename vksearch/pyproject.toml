@@ -15,7 +15,6 @@ celery = "5.2.3"
 Pillow = "^9.3.0"
 flower = "^1.2.0"
 eventlet = "^0.33.1"
-django-crispy-forms = "^1.14.0"
 
 [tool.poetry.dev-dependencies]
 
