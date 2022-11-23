@@ -1,0 +1,28 @@
+name: Main
+
+on: [push]
+jobs:
+  test:
+    strategy:
+      matrix:
+        python-version: ["3.8", "3.9", "3.10"]
+        poetry-version: ['1.1.13']
+        os: [ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v3
+#    - name: Set up Python ${{ matrix.python-version }}
+      -uses: actions/setup-python@v3
+      with:
+        python-version: ${{ matrix.python-version }}
+      -name: Run image
+      -uses: abatilo/actions-poetry@v2.1.4
+        with:
+          poetry-version: ${{ matrix.poetry-version }}
+      -name: Install dependencies
+       run: poetry install --no-dev --no-ansi
+       run: poetry run
+        run: |
+          cd vksearch
+          python3 manage.py test
+          
