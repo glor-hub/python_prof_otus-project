@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "vksearch"
+name= "PythonProfessional.2022-05.project"
 version = "0.1.0"
 description = ""
 authors = ["Inna Sorina <sorina-inna@yandex.ru>"]

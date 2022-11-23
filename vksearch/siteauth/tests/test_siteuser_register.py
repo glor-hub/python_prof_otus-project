@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 
-REGISTER_URL = '/siteauth/register/'
+REGISTER_URL = '/siteauth/signup/'
 
 class SiteUserRegisterTest(TestCase):
     @classmethod
