@@ -63,9 +63,9 @@ class CommunityProfileManager(models.Manager):
 
         audience_filter = {}
         if min_audience is not None:
-            audience_filter['audience__gte'] = min_audience
+            audience_filter['audience_sum__gte'] = min_audience
         if max_audience is not None:
-            audience_filter['audience__lte'] = max_audience
+            audience_filter['audience_sum__lte'] = max_audience
 
         sex_perc_filter = {}
         if min_sex_perc is not None:
@@ -75,9 +75,9 @@ class CommunityProfileManager(models.Manager):
 
         audience_perc_filter = {}
         if min_audience_perc is not None:
-            audience_filter['audience_perc__gte'] = min_audience_perc
+            audience_perc_filter['audience_perc__gte'] = min_audience_perc
         if max_audience_perc is not None:
-            audience_filter['audience_perc__lte'] = max_audience_perc
+            audience_perc_filter['audience_perc__lte'] = max_audience_perc
 
         return self.filter(
             deactivated=False,
