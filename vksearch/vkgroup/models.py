@@ -1,4 +1,4 @@
-from django.db import models
+from django.db import models, IntegrityError
 
 
 class CommunityType(models.Model):
@@ -22,8 +22,10 @@ class CommunityType(models.Model):
             type_instances.append(
                 CommunityType(name=d['type'])
             )
-        CommunityType.objects.bulk_create(type_instances)
-
+        try:
+            CommunityType.objects.bulk_create(type_instances)
+        except IntegrityError:
+            pass
 
 class CommunityProfileManager(models.Manager):
     ORDERING_CHOICES = (
