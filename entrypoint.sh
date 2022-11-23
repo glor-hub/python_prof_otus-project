@@ -15,8 +15,8 @@ echo "Apply migrations"
 #fi
 
 
-python ./manage.py migrate
-python ./manage.py collectstatic --no-input
+python manage.py migrate
+python manage.py collectstatic --no-input
 
 #python vksearch/manage.py migrate
 #python manage.py collectstatic --no-input --clear

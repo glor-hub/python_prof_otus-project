@@ -24,7 +24,7 @@ services:
     restart: always
 
   web:
-    build: ./vksearch
+    build: ./
     command: python manage.py runserver 0.0.0.0:8000
     ports:
       - "0.0.0.0:8000:8000"
@@ -33,16 +33,16 @@ services:
     expose:
       - "8000"
     volumes:
-      - ./vksearch:/app/
+      - ./vksearch:/app/vksearch
     depends_on:
       - pg
       - rabbitmq
 
   celery:
-    build: ./vksearch
+    build: ./
     command: celery -A vksearch worker -c 6 --loglevel=info
     volumes:
-      - ./vksearch:/app/
+      - ./vksearch:/app/vksearch
     env_file:
       - ./.env
     depends_on:
