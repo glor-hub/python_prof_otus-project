@@ -25,4 +25,4 @@ jobs:
     - name: Run python tests
       run: |
         cd vksearch
-        python manage.py test       
+        python3 manage.py test       
