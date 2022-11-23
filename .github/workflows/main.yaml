@@ -24,5 +24,4 @@ jobs:
     - name: Run python tests
       run: |
         cd vksearch
-        django --V
         python3 manage.py test       
