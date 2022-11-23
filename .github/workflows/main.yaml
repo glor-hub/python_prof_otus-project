@@ -24,5 +24,4 @@ jobs:
     - name: Run python tests
       run: |
         cd vksearch
-        poetry shell
         python3 manage.py test       
