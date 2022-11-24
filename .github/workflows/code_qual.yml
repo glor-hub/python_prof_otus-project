@@ -29,8 +29,37 @@ jobs:
       run:
         source .venv/bin/activate
     - name: Run black
-      run:
+      run: |
         poetry run black . --check
+        black vksearch/siteauth/admin.py
+        black vksearch/manage.py
+        black vksearch/siteauth/apps.py
+        black vksearch/siteauth/forms.py
+        black vksearch/siteauth/models.py
+        black vksearch/siteauth/tests/test_siteuser_login.py
+        black vksearch/siteauth/tests/test_siteuser_register.py
+        black vksearch/siteauth/migrations/0001_initial.py
+        black vksearch/siteauth/urls.py
+        black vksearch/siteauth/views.py
+        black vksearch/vkgroup/apps.py
+        black vksearch/vkgroup/migrations/0001_initial.py
+        black vksearch/vkgroup/forms.py
+        black vksearch/vkgroup/migrations/0002_alter_community_description_alter_community_members_and_more.py
+        black vksearch/vkgroup/migrations/0003_alter_community_type_alter_communitytype_name.py
+        black vksearch/vkgroup/migrations/0004_alter_communitytype_name.py
+        black vksearch/vkgroup/migrations/0005_alter_community_description.py
+        black vksearch/vkgroup/migrations/0007_alter_audienceprofile_sex_alter_community_age_vk.py
+        black vksearch/vkgroup/migrations/0008_alter_community_name_alter_community_site.py
+        black vksearch/vkgroup/migrations/0009_alter_community_site.py
+        black vksearch/vkgroup/migrations/0010_alter_community_members_alter_community_name.py
+        black vksearch/vkgroup/migrations/0011_alter_community_members.py
+        black vksearch/vkgroup/migrations/0012_alter_community_age_vk.py
+        black vksearch/vkgroup/migrations/0006_agerange_country_audience_community_community_age_vk_and_more.py
+        black vksearch/vkgroup/migrations/0013_alter_community_status.py
+        black vksearch/vkgroup/migrations/0014_alter_community_deactivated_and_more.py
+        black vksearch/vkgroup/migrations/0015_alter_community_name_alter_community_site_and_more.py
+        black vksearch/vkgroup/migrations/0017_alter_community_description.py
+        black vksearch/vkgroup/migrations/0016_alter_community_description_alter_community_name_and_more
     - name: Run isort
       run:
         poetry run isort . --check-only --profile black
