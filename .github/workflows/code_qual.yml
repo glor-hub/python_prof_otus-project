@@ -1,5 +1,7 @@
 name: Code_quality
 
+on: [push]
+
 jobs:
   tests:
     runs-on: ubuntu-latest
