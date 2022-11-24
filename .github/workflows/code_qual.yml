@@ -23,8 +23,10 @@ jobs:
         installer-parallel: true
     - name: Install deps and activate virt
       if: steps.cache-deps.cache-hit != 'true'
-      run: |
+      run:
         poetry install --no-interaction
+    - name: Activate virt
+      run:
         source .venv/bin/activate
     - name: Run black
       run:
