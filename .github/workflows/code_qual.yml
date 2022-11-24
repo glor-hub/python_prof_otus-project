@@ -30,8 +30,7 @@ jobs:
         source .venv/bin/activate
     - name: Run black
       run: |
-        poetry run black --diff
-        black vksearch/siteauth/admin.py
+        poetry run black vksearch/siteauth/admin.py
         black vksearch/manage.py
         black vksearch/siteauth/apps.py
         black vksearch/siteauth/forms.py
