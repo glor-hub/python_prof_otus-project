@@ -3,7 +3,7 @@ name: Code_quality
 on: [push]
 
 jobs:
-  tests:
+  code_quality:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -21,10 +21,11 @@ jobs:
         virtualenvs-create: true
         virtualenvs-in-project: true
         installer-parallel: true
-    - name: Install deps
+    - name: Install deps and activate virt
       if: steps.cache-deps.cache-hit != 'true'
-      run:
+      run: |
         poetry install --no-interaction
+        source .venv/bin/activate
     - name: Run black
       run:
         black --check
