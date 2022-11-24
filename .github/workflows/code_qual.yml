@@ -51,7 +51,7 @@ jobs:
         poetry run black vksearch/vkgroup/migrations/0009_alter_community_site.py
         poetry run black vksearch/vkgroup/migrations/0010_alter_community_members_alter_community_name.py
         poetry run black vksearch/vkgroup/migrations/0011_alter_community_members.py
-      poetry run black vksearch/vkgroup/migrations/0012_alter_community_age_vk.py
+        poetry run black vksearch/vkgroup/migrations/0012_alter_community_age_vk.py
         poetry run black vksearch/vkgroup/migrations/0006_agerange_country_audience_community_community_age_vk_and_more.py
         poetry run black vksearch/vkgroup/migrations/0013_alter_community_status.py
         poetry run black vksearch/vkgroup/migrations/0014_alter_community_deactivated_and_more.py
