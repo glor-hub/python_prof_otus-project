@@ -29,7 +29,8 @@ jobs:
       run:
         source .venv/bin/activate
     - name: Run black
-      run:
+      run: |
+        cd vksearch
         black --check
     - name: Run flake8
       run:
