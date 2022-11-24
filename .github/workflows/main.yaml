@@ -24,8 +24,9 @@ jobs:
     - name: Install deps
       if: steps.cache-deps.cache-hit != 'true'
       run: |
-        poetry config virtualenvs.in-project true
         poetry install --no-interaction
+        cd vksearch
+        poetry shell
     - name: Run python tests
       run: |
         cd vksearch
