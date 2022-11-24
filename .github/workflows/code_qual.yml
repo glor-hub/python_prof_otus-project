@@ -29,30 +29,7 @@ jobs:
       run:
         source .venv/bin/activate
     - name: Run black
-      run: |
-        poetry run black vksearch/vkgroup/migrations/0017_alter_community_description.py
-        poetry run black vksearch/vkgroup/migrations/0006_agerange_country_audience_community_community_age_vk_and_more.py
-        poetry run black vksearch/vkgroup/migrations/0018_alter_community_description_alter_community_name_and_more.py
-        poetry run black vksearch/vkgroup/migrations/0020_alter_country_name.py
-        poetry run black vksearch/vkgroup/migrations/0019_alter_community_description_alter_community_name_and_more.py
-        poetry run black vksearch/vkgroup/migrations/0021_rename_update_community_is_updated.py
-        poetry run black vksearch/vkgroup/migrations/0022_alter_audience_count_alter_audience_unique_together.py
-        poetry run black vksearch/vkgroup/migrations/0023_alter_agerange_range.py
-        poetry run black vksearch/vkgroup/migrations/0025_rename_is_updated_community_update_at.py
-        poetry run black vksearch/vkgroup/migrations/0024_alter_audience_community_alter_audience_profile_and_more.py
-        poetry run black vksearch/vkgroup/models.py
-        poetry run black vksearch/vkgroup/templatetags/url_replace.py
-        poetry run black vksearch/vkgroup/tasks.py
-        poetry run black vksearch/vkgroup/urls.py
-        poetry run black vksearch/vkgroup/views.py
-        poetry run black vksearch/vksearch/__init__.py
-        poetry run black vksearch/vksearch/asgi.py
-        poetry run black vksearch/vksearch/celery.py
-        poetry run black vksearch/vkgroup/vkapi_service.py
-        poetry run black vksearch/vksearch/urls.py
-        poetry run black vksearch/vksearch/view.py
-        poetry run black vksearch/vksearch/settings.py
-        poetry run black vksearch/vk       poetry run black 
+      run: 
         poetry run black . --check
     - name: Run isort
       run:
