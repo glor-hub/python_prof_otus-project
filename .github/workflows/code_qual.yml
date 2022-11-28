@@ -38,5 +38,6 @@ jobs:
       run:
         poetry run flake8 .
     - name: Run mypy
-      run: 
+      run: |
+        cd vksearch
         poetry run mypy --strict-optional -p vksearch
