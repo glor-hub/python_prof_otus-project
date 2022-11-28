@@ -11,6 +11,8 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.AlterField(
-            model_name="country", name="name", field=models.TextField(unique=True),
+            model_name="country",
+            name="name",
+            field=models.TextField(unique=True),
         ),
     ]

@@ -16,6 +16,8 @@ class Migration(migrations.Migration):
             field=models.PositiveIntegerField(blank=True),
         ),
         migrations.AlterField(
-            model_name="community", name="name", field=models.CharField(max_length=64),
+            model_name="community",
+            name="name",
+            field=models.CharField(max_length=64),
         ),
     ]

@@ -16,9 +16,13 @@ class Migration(migrations.Migration):
             field=models.TextField(null=True),
         ),
         migrations.AlterField(
-            model_name="community", name="name", field=models.TextField(null=True),
+            model_name="community",
+            name="name",
+            field=models.TextField(null=True),
         ),
         migrations.AlterField(
-            model_name="community", name="site", field=models.TextField(null=True),
+            model_name="community",
+            name="site",
+            field=models.TextField(null=True),
         ),
     ]

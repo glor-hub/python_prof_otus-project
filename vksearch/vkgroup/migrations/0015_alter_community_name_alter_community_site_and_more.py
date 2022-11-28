@@ -11,12 +11,18 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.AlterField(
-            model_name="community", name="name", field=models.TextField(),
+            model_name="community",
+            name="name",
+            field=models.TextField(),
         ),
         migrations.AlterField(
-            model_name="community", name="site", field=models.TextField(null=True),
+            model_name="community",
+            name="site",
+            field=models.TextField(null=True),
         ),
         migrations.AlterField(
-            model_name="community", name="status", field=models.TextField(null=True),
+            model_name="community",
+            name="status",
+            field=models.TextField(null=True),
         ),
     ]

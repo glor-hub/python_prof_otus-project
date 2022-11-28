@@ -70,7 +70,9 @@ def get_communities_data(vk_community, update_flag=False):
 
 
 @shared_task(
-    default_retry_delay=1, autoretry_for=(Exception,), max_retries=3,
+    default_retry_delay=1,
+    autoretry_for=(Exception,),
+    max_retries=3,
 )
 def task_load_and_store_communities(url):
     r = requests.get(url, timeout=(VK_REQ_CONNECT_TIMEOUT, VK_REQ_READ_TIMEOUT))
@@ -106,7 +108,9 @@ def task_load_and_store_communities(url):
 
 
 @shared_task(
-    default_retry_delay=1, autoretry_for=(Exception,), max_retries=3,
+    default_retry_delay=1,
+    autoretry_for=(Exception,),
+    max_retries=3,
 )
 def task_update_and_store_communities(url):
     r = requests.get(url, timeout=(VK_REQ_CONNECT_TIMEOUT, VK_REQ_READ_TIMEOUT))
@@ -138,7 +142,9 @@ def get_countries_data():
 
 
 @shared_task(
-    default_retry_delay=1, autoretry_for=(Exception,), max_retries=3,
+    default_retry_delay=1,
+    autoretry_for=(Exception,),
+    max_retries=3,
 )
 def task_load_and_store_countries():
     vk_audience = VkApiAudience()
@@ -192,7 +198,9 @@ def get_audience_data_for_group(g_id):
 
 
 @shared_task(
-    default_retry_delay=5, autoretry_for=(Exception,), max_retries=3,
+    default_retry_delay=5,
+    autoretry_for=(Exception,),
+    max_retries=3,
 )
 def task_load_users_for_community(url, g_id):
     vk_audience = VkApiAudience()

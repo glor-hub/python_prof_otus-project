@@ -11,7 +11,9 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.AlterField(
-            model_name="community", name="deactivated", field=models.BooleanField(),
+            model_name="community",
+            name="deactivated",
+            field=models.BooleanField(),
         ),
         migrations.AlterField(
             model_name="community",

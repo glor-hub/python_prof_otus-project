@@ -16,7 +16,9 @@ class Migration(migrations.Migration):
             field=models.CharField(max_length=1024, null=True),
         ),
         migrations.AlterField(
-            model_name="community", name="name", field=models.CharField(max_length=512),
+            model_name="community",
+            name="name",
+            field=models.CharField(max_length=512),
         ),
         migrations.AlterField(
             model_name="community",

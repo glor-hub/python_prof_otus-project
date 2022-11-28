@@ -79,13 +79,20 @@ class CommunityProfileManager(models.Manager):
             audience_perc_filter["audience_perc__lte"] = max_audience_perc
 
         return (
-            self.filter(deactivated=False, **members_filter, **profile_filter,)
+            self.filter(
+                deactivated=False,
+                **members_filter,
+                **profile_filter,
+            )
             .select_related("type")
             .annotate(
                 audience_sum=models.Sum("audience__count"),
                 sex_perc=100 * models.F("audience_sum") / models.F("members"),
             )
-            .filter(audience_sum__isnull=False, **sex_perc_filter,)
+            .filter(
+                audience_sum__isnull=False,
+                **sex_perc_filter,
+            )
             .annotate(
                 audience_sum=models.Sum("audience__count"),
                 audience_perc=100 * models.F("audience_sum") / models.F("members"),

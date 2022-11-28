@@ -11,6 +11,8 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.RenameField(
-            model_name="community", old_name="is_updated", new_name="update_at",
+            model_name="community",
+            old_name="is_updated",
+            new_name="update_at",
         ),
     ]

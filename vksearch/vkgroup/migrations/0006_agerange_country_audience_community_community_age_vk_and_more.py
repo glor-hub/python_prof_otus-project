@@ -132,7 +132,9 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={"unique_together": {("country", "age_range", "sex")},},
+            options={
+                "unique_together": {("country", "age_range", "sex")},
+            },
         ),
         migrations.AddField(
             model_name="audience",

@@ -11,9 +11,12 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.AlterField(
-            model_name="audience", name="count", field=models.IntegerField(default=0),
+            model_name="audience",
+            name="count",
+            field=models.IntegerField(default=0),
         ),
         migrations.AlterUniqueTogether(
-            name="audience", unique_together={("community", "profile")},
+            name="audience",
+            unique_together={("community", "profile")},
         ),
     ]
