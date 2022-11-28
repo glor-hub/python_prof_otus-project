@@ -30,7 +30,7 @@ jobs:
         source .venv/bin/activate
     - name: Run black
       run:
-        poetry run black --check .
+        poetry run black .
     - name: Run isort
       run:
         poetry run isort . --check-only --profile black
