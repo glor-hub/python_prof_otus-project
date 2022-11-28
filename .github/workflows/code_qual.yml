@@ -40,4 +40,4 @@ jobs:
     - name: Run mypy
       run: |
         cd vksearch
-        poetry run mypy .
+        poetry run mypy --strict-optional -p vksearch
