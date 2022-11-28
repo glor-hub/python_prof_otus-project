@@ -565,6 +565,25 @@ optional = false
 python-versions = "*"
 
 [[package]]
+name = "types-requests"
+version = "2.28.11.5"
+description = "Typing stubs for requests"
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+types-urllib3 = "<1.27"
+
+[[package]]
+name = "types-urllib3"
+version = "1.26.25.4"
+description = "Typing stubs for urllib3"
+category = "main"
+optional = false
+python-versions = "*"
+
+[[package]]
 name = "typing-extensions"
 version = "4.4.0"
 description = "Backported and Experimental Type Hints for Python 3.7+"
@@ -612,7 +631,7 @@ python-versions = "*"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "604a2951b09c35da3666aef8dccb13c54f471c80fea44b098e41bf40da591c81"
+content-hash = "b77e3dc52b69b6909fc9787dabad3209249495c412c3894af4db3bcdebeab485"
 
 [metadata.files]
 amqp = []
@@ -704,6 +723,8 @@ tomli = [
 tornado = []
 types-pytz = []
 types-pyyaml = []
+types-requests = []
+types-urllib3 = []
 typing-extensions = []
 tzdata = []
 urllib3 = []
