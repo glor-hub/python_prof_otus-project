@@ -1,11 +1,11 @@
-from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+from django.core.paginator import Paginator
 from django.shortcuts import render
 from django.views.decorators.http import require_GET
 
 from .models import Community
 from .forms import CommunitiesSearchForm
 
-from .tasks import check_for_update_data_from_vk, get_audience_data
+from .tasks import check_for_update_data_from_vk
 
 import logging
 
