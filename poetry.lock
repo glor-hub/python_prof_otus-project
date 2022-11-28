@@ -219,6 +219,38 @@ Django = ">=3.2.4"
 sqlparse = ">=0.2.0"
 
 [[package]]
+name = "django-stubs"
+version = "1.13.0"
+description = "Mypy stubs for Django"
+category = "main"
+optional = false
+python-versions = ">=3.7"
+
+[package.dependencies]
+django = "*"
+django-stubs-ext = ">=0.7.0"
+mypy = ">=0.980"
+tomli = "*"
+types-pytz = "*"
+types-PyYAML = "*"
+typing-extensions = "*"
+
+[package.extras]
+compatible-mypy = ["mypy (>=0.980,<0.990)"]
+
+[[package]]
+name = "django-stubs-ext"
+version = "0.7.0"
+description = "Monkey-patching and extensions for django-stubs"
+category = "main"
+optional = false
+python-versions = ">=3.7"
+
+[package.dependencies]
+django = "*"
+typing-extensions = "*"
+
+[[package]]
 name = "dnspython"
 version = "2.2.1"
 description = "DNS toolkit"
@@ -517,6 +549,22 @@ optional = false
 python-versions = ">= 3.7"
 
 [[package]]
+name = "types-pytz"
+version = "2022.6.0.1"
+description = "Typing stubs for pytz"
+category = "main"
+optional = false
+python-versions = "*"
+
+[[package]]
+name = "types-pyyaml"
+version = "6.0.12.2"
+description = "Typing stubs for PyYAML"
+category = "main"
+optional = false
+python-versions = "*"
+
+[[package]]
 name = "typing-extensions"
 version = "4.4.0"
 description = "Backported and Experimental Type Hints for Python 3.7+"
@@ -564,7 +612,7 @@ python-versions = "*"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "fe814f5c9b50c01db6684eb03211868ffcb5e6d4b583ddc9d9f6fb084580dd22"
+content-hash = "604a2951b09c35da3666aef8dccb13c54f471c80fea44b098e41bf40da591c81"
 
 [metadata.files]
 amqp = []
@@ -614,6 +662,8 @@ click-repl = [
 colorama = []
 django = []
 django-debug-toolbar = []
+django-stubs = []
+django-stubs-ext = []
 dnspython = []
 eventlet = []
 flake8 = []
@@ -652,6 +702,8 @@ tomli = [
     {file = "tomli-2.0.1.tar.gz", hash = "sha256:de526c12914f0c550d15924c62d72abc48d6fe7364aa87328337a31007fe8a4f"},
 ]
 tornado = []
+types-pytz = []
+types-pyyaml = []
 typing-extensions = []
 tzdata = []
 urllib3 = []
