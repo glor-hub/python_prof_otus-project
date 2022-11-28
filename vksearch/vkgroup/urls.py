@@ -1,7 +1,8 @@
 from django.urls import path
 
-app_name = "vkgroup"
 from .views import communities_view
+
+app_name = "vkgroup"
 
 urlpatterns = [
     path("", communities_view, name="search"),
