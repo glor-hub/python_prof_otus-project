@@ -251,6 +251,27 @@ django = "*"
 typing-extensions = "*"
 
 [[package]]
+name = "djangorestframework-stubs"
+version = "1.8.0"
+description = "PEP-484 stubs for django-rest-framework"
+category = "main"
+optional = false
+python-versions = ">=3.7"
+
+[package.dependencies]
+django-stubs = ">=1.13.0"
+mypy = ">=0.980"
+requests = ">=2.0.0"
+types-PyYAML = ">=5.4.3"
+types-requests = ">=0.1.12"
+typing-extensions = ">=3.10.0"
+
+[package.extras]
+compatible-mypy = ["mypy (>=0.991,<0.1000)"]
+coreapi = ["coreapi (>=2.0.0)"]
+markdown = ["types-Markdown (>=0.1.5)"]
+
+[[package]]
 name = "dnspython"
 version = "2.2.1"
 description = "DNS toolkit"
@@ -631,7 +652,7 @@ python-versions = "*"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "b77e3dc52b69b6909fc9787dabad3209249495c412c3894af4db3bcdebeab485"
+content-hash = "7fb459a34d4869588feebaf71627e29c1a8a973dda47ce8d669fe41eab0ad73e"
 
 [metadata.files]
 amqp = []
@@ -683,6 +704,7 @@ django = []
 django-debug-toolbar = []
 django-stubs = []
 django-stubs-ext = []
+djangorestframework-stubs = []
 dnspython = []
 eventlet = []
 flake8 = []
