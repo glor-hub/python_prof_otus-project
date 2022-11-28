@@ -4,10 +4,14 @@ max-line-length = 80
 max-complexity = 18
 select = B,C,E,F,W,T4,B9
 exclude =
-    migrations
-    __pycache__
-    manage.py
-    settings.py
-    env
-    .env
-    .\.env
+    .venv,
+    .git,
+    .tox,
+    dist,
+    doc,
+    *openstack/common/*,
+    *lib/python*,
+    *egg,
+    build,
+    tools/xenserver*,
+    releasenotes
