@@ -6,28 +6,26 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('vkgroup', '0015_alter_community_name_alter_community_site_and_more'),
+        ("vkgroup", "0015_alter_community_name_alter_community_site_and_more"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='community',
-            name='description',
+            model_name="community",
+            name="description",
             field=models.CharField(max_length=1024, null=True),
         ),
         migrations.AlterField(
-            model_name='community',
-            name='name',
-            field=models.CharField(max_length=512),
+            model_name="community", name="name", field=models.CharField(max_length=512),
         ),
         migrations.AlterField(
-            model_name='community',
-            name='site',
+            model_name="community",
+            name="site",
             field=models.CharField(max_length=512, null=True),
         ),
         migrations.AlterField(
-            model_name='country',
-            name='name',
+            model_name="country",
+            name="name",
             field=models.CharField(max_length=512, unique=True),
         ),
     ]

@@ -6,13 +6,11 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('vkgroup', '0019_alter_community_description_alter_community_name_and_more'),
+        ("vkgroup", "0019_alter_community_description_alter_community_name_and_more"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='country',
-            name='name',
-            field=models.TextField(unique=True),
+            model_name="country", name="name", field=models.TextField(unique=True),
         ),
     ]

@@ -25,7 +25,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv()
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
+SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
 ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS").split(" ")
 
 # SECURITY WARNING: don't run with debug turned on in production!
@@ -36,59 +36,58 @@ DEBUG = True
 # Application definition
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
     # third part
-    'debug_toolbar',
-
+    "debug_toolbar",
     # own
     # 'vkapi',
-    'vkgroup',
-    'siteauth',
+    "vkgroup",
+    "siteauth",
 ]
 
 MIDDLEWARE = [
-    'debug_toolbar.middleware.DebugToolbarMiddleware',
-    'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
+    "django.middleware.security.SecurityMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-ROOT_URLCONF = 'vksearch.urls'
+ROOT_URLCONF = "vksearch.urls"
 
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [BASE_DIR / "templates"],
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.debug",
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
             ],
         },
     },
 ]
 
-WSGI_APPLICATION = 'vksearch.wsgi.application'
+WSGI_APPLICATION = "vksearch.wsgi.application"
 
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "db.sqlite3",
     }
 }
 
@@ -110,62 +109,39 @@ DATABASES = {
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
     },
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
+    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",},
+    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",},
+    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",},
 ]
 
 LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'formatters': {
-        'verbose': {
-            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
-            'style': '{',
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "verbose": {
+            "format": "{levelname} {asctime} {module} {process:d} {thread:d} {message}",
+            "style": "{",
         },
-        'simple': {
-            'format': '{levelname} {message}',
-            'style': '{',
-        },
+        "simple": {"format": "{levelname} {message}", "style": "{",},
     },
-    'handlers': {
-        'console': {
-            'class': 'logging.StreamHandler',
-            'formatter': 'verbose'
-        },
+    "handlers": {
+        "console": {"class": "logging.StreamHandler", "formatter": "verbose"},
     },
-
-    'root': {
-        'handlers': ['console'],
-        'level': 'INFO',
-        'formatter': 'verbose'
+    "root": {"handlers": ["console"], "level": "INFO", "formatter": "verbose"},
+    "loggers": {
+        "vkgroup": {"handlers": ["console"], "level": "INFO"},
+        "vkapi_services": {"handlers": ["console"], "level": "INFO"},
     },
-    'loggers': {
-        'vkgroup': {
-            'handlers': ['console'],
-            'level': 'INFO'
-        },
-        'vkapi_services': {
-            'handlers': ['console'],
-            'level': 'INFO'
-        },
-    }
 }
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.1/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = "UTC"
 
 USE_I18N = True
 
@@ -176,8 +152,8 @@ USE_TZ = False
 
 
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
-STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(PROJECT_ROOT, 'static')
+STATIC_URL = "/static/"
+STATIC_ROOT = os.path.join(PROJECT_ROOT, "static")
 
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static"),
@@ -187,27 +163,27 @@ STATICFILES_DIRS = [
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-AUTH_USER_MODEL = 'siteauth.SiteUser'
+AUTH_USER_MODEL = "siteauth.SiteUser"
 
-LOGIN_URL = '/siteauth/login/'
-LOGIN_REDIRECT_URL = '/'
-LOGOUT_REDIRECT_URL = '/'
+LOGIN_URL = "/siteauth/login/"
+LOGIN_REDIRECT_URL = "/"
+LOGOUT_REDIRECT_URL = "/"
 
-VK_API_VERSION=5.131
-VK_UPDATE_DATA_PERIOD=172800
-VK_MIN_TIME_PER_REQUEST=0.5
+VK_API_VERSION = 5.131
+VK_UPDATE_DATA_PERIOD = 172800
+VK_MIN_TIME_PER_REQUEST = 0.5
 VK_REQ_CONNECT_TIMEOUT = 1
 VK_REQ_READ_TIMEOUT = 3
 
-TOKENS_DIR=os.path.abspath(os.path.join(__file__, "../../"))
+TOKENS_DIR = os.path.abspath(os.path.join(__file__, "../../"))
 
-CELERY_BROKER_URL = os.getenv('CELERY_BROKER_URL')
-CELERY_RESULT_BACKEND = os.getenv('CELERY_RESULT_BACKEND')
+CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL")
+CELERY_RESULT_BACKEND = os.getenv("CELERY_RESULT_BACKEND")
 # CELERY_ACCEPT_CONTENT = os.getenv('CELERY_ACCEPT_CONTENT')
-CELERY_TASK_SERIALIZER = os.getenv('CELERY_TASK_SERIALIZER')
-CELERY_RESULT_SERIALIZER = os.getenv('CELERY_RESULT_SERIALIZER')
-CELERY_TIMEZONE = os.getenv('CELERY_TIMEZONE')
+CELERY_TASK_SERIALIZER = os.getenv("CELERY_TASK_SERIALIZER")
+CELERY_RESULT_SERIALIZER = os.getenv("CELERY_RESULT_SERIALIZER")
+CELERY_TIMEZONE = os.getenv("CELERY_TIMEZONE")
 CELERY_TASK_TRACK_STARTED = True
 CELERY_TASK_TIME_LIMIT = 30 * 60

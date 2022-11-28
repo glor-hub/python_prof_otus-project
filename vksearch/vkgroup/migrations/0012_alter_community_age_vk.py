@@ -6,13 +6,15 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('vkgroup', '0011_alter_community_members'),
+        ("vkgroup", "0011_alter_community_members"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='community',
-            name='age_vk',
-            field=models.PositiveIntegerField(choices=[(1, '0+'), (2, '16+'), (3, '18+')], null=True),
+            model_name="community",
+            name="age_vk",
+            field=models.PositiveIntegerField(
+                choices=[(1, "0+"), (2, "16+"), (3, "18+")], null=True
+            ),
         ),
     ]

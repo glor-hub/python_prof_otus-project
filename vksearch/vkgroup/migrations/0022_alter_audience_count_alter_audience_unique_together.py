@@ -6,17 +6,14 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('vkgroup', '0021_rename_update_community_is_updated'),
+        ("vkgroup", "0021_rename_update_community_is_updated"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='audience',
-            name='count',
-            field=models.IntegerField(default=0),
+            model_name="audience", name="count", field=models.IntegerField(default=0),
         ),
         migrations.AlterUniqueTogether(
-            name='audience',
-            unique_together={('community', 'profile')},
+            name="audience", unique_together={("community", "profile")},
         ),
     ]

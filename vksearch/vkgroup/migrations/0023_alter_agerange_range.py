@@ -6,13 +6,28 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('vkgroup', '0022_alter_audience_count_alter_audience_unique_together'),
+        ("vkgroup", "0022_alter_audience_count_alter_audience_unique_together"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='agerange',
-            name='range',
-            field=models.PositiveIntegerField(choices=[(1, 'ALL'), (2, '16-'), (3, '16-18'), (4, '18-24'), (5, '25-29'), (6, '30-34'), (7, '35-44'), (8, '45-54'), (9, '55-64'), (10, '65+')], default=1, unique=True),
+            model_name="agerange",
+            name="range",
+            field=models.PositiveIntegerField(
+                choices=[
+                    (1, "ALL"),
+                    (2, "16-"),
+                    (3, "16-18"),
+                    (4, "18-24"),
+                    (5, "25-29"),
+                    (6, "30-34"),
+                    (7, "35-44"),
+                    (8, "45-54"),
+                    (9, "55-64"),
+                    (10, "65+"),
+                ],
+                default=1,
+                unique=True,
+            ),
         ),
     ]

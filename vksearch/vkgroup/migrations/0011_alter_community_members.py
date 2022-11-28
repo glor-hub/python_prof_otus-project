@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('vkgroup', '0010_alter_community_members_alter_community_name'),
+        ("vkgroup", "0010_alter_community_members_alter_community_name"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='community',
-            name='members',
+            model_name="community",
+            name="members",
             field=models.PositiveIntegerField(blank=True, null=True),
         ),
     ]

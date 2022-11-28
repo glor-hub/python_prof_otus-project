@@ -7,28 +7,44 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('vkgroup', '0023_alter_agerange_range'),
+        ("vkgroup", "0023_alter_agerange_range"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='audience',
-            name='community',
-            field=models.ForeignKey(default=1, on_delete=django.db.models.deletion.CASCADE, to='vkgroup.community'),
+            model_name="audience",
+            name="community",
+            field=models.ForeignKey(
+                default=1,
+                on_delete=django.db.models.deletion.CASCADE,
+                to="vkgroup.community",
+            ),
         ),
         migrations.AlterField(
-            model_name='audience',
-            name='profile',
-            field=models.ForeignKey(default=1, on_delete=django.db.models.deletion.CASCADE, to='vkgroup.audienceprofile'),
+            model_name="audience",
+            name="profile",
+            field=models.ForeignKey(
+                default=1,
+                on_delete=django.db.models.deletion.CASCADE,
+                to="vkgroup.audienceprofile",
+            ),
         ),
         migrations.AlterField(
-            model_name='audienceprofile',
-            name='age_range',
-            field=models.ForeignKey(default=1, on_delete=django.db.models.deletion.CASCADE, to='vkgroup.agerange'),
+            model_name="audienceprofile",
+            name="age_range",
+            field=models.ForeignKey(
+                default=1,
+                on_delete=django.db.models.deletion.CASCADE,
+                to="vkgroup.agerange",
+            ),
         ),
         migrations.AlterField(
-            model_name='audienceprofile',
-            name='country',
-            field=models.ForeignKey(default=1, on_delete=django.db.models.deletion.CASCADE, to='vkgroup.country'),
+            model_name="audienceprofile",
+            name="country",
+            field=models.ForeignKey(
+                default=1,
+                on_delete=django.db.models.deletion.CASCADE,
+                to="vkgroup.country",
+            ),
         ),
     ]

@@ -6,18 +6,16 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('vkgroup', '0013_alter_community_status'),
+        ("vkgroup", "0013_alter_community_status"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='community',
-            name='deactivated',
-            field=models.BooleanField(),
+            model_name="community", name="deactivated", field=models.BooleanField(),
         ),
         migrations.AlterField(
-            model_name='community',
-            name='description',
+            model_name="community",
+            name="description",
             field=models.TextField(null=True),
         ),
     ]

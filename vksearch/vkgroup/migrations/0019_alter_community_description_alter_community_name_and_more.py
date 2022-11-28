@@ -6,23 +6,19 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('vkgroup', '0018_alter_community_description_alter_community_name_and_more'),
+        ("vkgroup", "0018_alter_community_description_alter_community_name_and_more"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='community',
-            name='description',
+            model_name="community",
+            name="description",
             field=models.TextField(null=True),
         ),
         migrations.AlterField(
-            model_name='community',
-            name='name',
-            field=models.TextField(null=True),
+            model_name="community", name="name", field=models.TextField(null=True),
         ),
         migrations.AlterField(
-            model_name='community',
-            name='site',
-            field=models.TextField(null=True),
+            model_name="community", name="site", field=models.TextField(null=True),
         ),
     ]

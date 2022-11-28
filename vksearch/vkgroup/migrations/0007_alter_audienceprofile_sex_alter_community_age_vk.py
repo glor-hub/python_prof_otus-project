@@ -6,18 +6,25 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('vkgroup', '0006_agerange_country_audience_community_community_age_vk_and_more'),
+        (
+            "vkgroup",
+            "0006_agerange_country_audience_community_community_age_vk_and_more",
+        ),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='audienceprofile',
-            name='sex',
-            field=models.SmallIntegerField(choices=[(0, 'UNKNOWN'), (1, 'Female'), (2, 'Male')], default=0),
+            model_name="audienceprofile",
+            name="sex",
+            field=models.SmallIntegerField(
+                choices=[(0, "UNKNOWN"), (1, "Female"), (2, "Male")], default=0
+            ),
         ),
         migrations.AlterField(
-            model_name='community',
-            name='age_vk',
-            field=models.PositiveIntegerField(choices=[(1, '0+'), (2, '16+'), (3, '18+')], default=1),
+            model_name="community",
+            name="age_vk",
+            field=models.PositiveIntegerField(
+                choices=[(1, "0+"), (2, "16+"), (3, "18+")], default=1
+            ),
         ),
     ]

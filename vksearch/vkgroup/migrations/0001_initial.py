@@ -8,35 +8,59 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Audience',
+            name="Audience",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('count', models.IntegerField()),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("count", models.IntegerField()),
             ],
         ),
         migrations.CreateModel(
-            name='CommunityType',
+            name="CommunityType",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.TextField(unique=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.TextField(unique=True)),
             ],
         ),
         migrations.CreateModel(
-            name='Community',
+            name="Community",
             fields=[
-                ('vk_id', models.PositiveIntegerField(primary_key=True, serialize=False)),
-                ('deactivated', models.BooleanField(default=False)),
-                ('description', models.TextField(default=None)),
-                ('verified', models.BooleanField(null=True)),
-                ('name', models.CharField(max_length=64)),
-                ('site', models.CharField(max_length=128)),
-                ('members', models.PositiveIntegerField(blank=True)),
-                ('type', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='vkgroup.communitytype')),
+                (
+                    "vk_id",
+                    models.PositiveIntegerField(primary_key=True, serialize=False),
+                ),
+                ("deactivated", models.BooleanField(default=False)),
+                ("description", models.TextField(default=None)),
+                ("verified", models.BooleanField(null=True)),
+                ("name", models.CharField(max_length=64)),
+                ("site", models.CharField(max_length=128)),
+                ("members", models.PositiveIntegerField(blank=True)),
+                (
+                    "type",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="vkgroup.communitytype",
+                    ),
+                ),
             ],
         ),
     ]
