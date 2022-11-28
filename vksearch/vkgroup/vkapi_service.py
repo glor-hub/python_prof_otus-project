@@ -1,10 +1,9 @@
 from datetime import date
-
 from os.path import join
 
-from vksearch.settings import VK_API_VERSION, TOKENS_DIR
+from vksearch.settings import TOKENS_DIR, VK_API_VERSION
 
-from .models import Community, AgeRange, Country, AudienceProfile
+from .models import AgeRange, AudienceProfile, Community, Country
 
 # communities
 MAX_GROUPS_COUNT_PER_REQUEST = 500

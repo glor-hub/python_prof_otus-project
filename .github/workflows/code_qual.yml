@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.8", "3.9", "3.10"]
+        python-version: ["3.8", "3.9"]
     steps:
     - uses: actions/checkout@v3
     - name: Set up Python ${{ matrix.python-version }}
@@ -31,9 +31,6 @@ jobs:
     - name: Run black
       run:
         poetry run black .
-#    - name: Run isort
-#      run:
-#        poetry run isort . --check-only --profile black
     - name: Run flake8
       run:
         poetry run flake8 .
@@ -41,3 +38,6 @@ jobs:
       run: |
         cd vksearch
         poetry run mypy --strict-optional -p vksearch
+    - name: Run isort
+      run:
+        poetry run isort .

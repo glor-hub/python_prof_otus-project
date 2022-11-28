@@ -1,33 +1,20 @@
 from __future__ import absolute_import, unicode_literals
 
-from django.core.exceptions import ObjectDoesNotExist
-from django.db import IntegrityError
-
-import requests
-from django.db.models import Q, F
-
-from celery import group, shared_task
-
 from datetime import datetime
 
+import requests
+from celery import group, shared_task
+from django.core.exceptions import ObjectDoesNotExist
+from django.db import IntegrityError
+from django.db.models import F, Q
+
+from vksearch.settings import (VK_REQ_CONNECT_TIMEOUT, VK_REQ_READ_TIMEOUT,
+                               VK_UPDATE_DATA_PERIOD)
+
 from . import vkapi_service
-
-from .models import (
-    Community,
-    CommunityType,
-    Country,
-    AudienceProfile,
-    Audience,
-    AgeRange,
-)
-
-from .vkapi_service import VkApiCommunity, VkApiAudience
-
-from vksearch.settings import (
-    VK_UPDATE_DATA_PERIOD,
-    VK_REQ_CONNECT_TIMEOUT,
-    VK_REQ_READ_TIMEOUT,
-)
+from .models import (AgeRange, Audience, AudienceProfile, Community,
+                     CommunityType, Country)
+from .vkapi_service import VkApiAudience, VkApiCommunity
 
 
 def check_for_update_data_from_vk():

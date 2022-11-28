@@ -1,6 +1,6 @@
 from django import forms
 
-from .models import Community, AgeRange, Country, AudienceProfile
+from .models import AgeRange, AudienceProfile, Community, Country
 
 
 class CommunitiesSearchForm(forms.Form):

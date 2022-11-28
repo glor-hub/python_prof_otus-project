@@ -1,9 +1,7 @@
-from django.views.generic import CreateView, UpdateView
 from django.contrib import messages
+from django.views.generic import CreateView, UpdateView
 
-from .forms import SiteUserCreateForm
-from .forms import SiteUserUpdateForm
-
+from .forms import SiteUserCreateForm, SiteUserUpdateForm
 from .models import SiteUser
 
 
